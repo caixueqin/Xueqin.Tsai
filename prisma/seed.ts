@@ -35,7 +35,7 @@ async function main() {
   })
 
   const childrenNames = ['Yao', 'Sean', 'Mia', 'Leo']
-  const childrenPins = ['1111', '2222', '3333', '4444']
+  const childrenPins = ['1111', '1234', '1234', '1234']
   
   for (let i = 0; i < childrenNames.length; i++) {
     const user = await prisma.user.create({
