@@ -26,6 +26,20 @@ export async function loginAction(formData: FormData) {
     if (user.pin !== pinOrPassword) {
       return { error: 'Incorrect PIN.' }
     }
+    
+    // Check if they are using the default PIN
+    if (user.pin === '1234') {
+      const newPin = formData.get('newPin') as string
+      if (!newPin) {
+        return { requiresNewPin: true, message: 'Welcome! Since this is your first time, please set a new secret PIN (e.g. 4 digits).' }
+      } else {
+        // Update the PIN
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { pin: newPin }
+        })
+      }
+    }
   } else {
     if (user.password !== pinOrPassword) {
       return { error: 'Incorrect Password.' }

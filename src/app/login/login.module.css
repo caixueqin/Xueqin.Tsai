@@ -90,3 +90,13 @@
   border-radius: 8px;
   margin: 0;
 }
+
+.success {
+  color: #059669;
+  font-size: 14px;
+  background: #d1fae5;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 0;
+  font-weight: 500;
+}
