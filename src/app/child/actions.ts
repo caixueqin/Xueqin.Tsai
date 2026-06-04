@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 export async function toggleCheckmarkAction(childId: string, checkItemId: string, currentlyChecked: boolean) {
   const session = await getSession()
