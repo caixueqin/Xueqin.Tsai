@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  pin        String?  // For children
+  password   String?  // For parents/admin
+  role       String   // "admin", "child", "parent"
+  createdAt  DateTime @default(now())
+
+  child      Child?
+  checkmarks Checkmark[] @relation("CreatedBy")
+  undoneMarks Checkmark[] @relation("UndoneBy")
+}
+
+model Child {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id])
+  displayName        String
+  currentSectionId   String?
+  createdAt          DateTime @default(now())
+
+  checkmarks         Checkmark[]
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  number      Int
+  titleEn     String
+  titleZh     String?
+  orderIndex  Int
+
+  sections    Section[]
+}
+
+model Section {
+  id           String   @id @default(cuid())
+  chapterId    String
+  chapter      Chapter  @relation(fields: [chapterId], references: [id])
+  number       String
+  titleEn      String
+  titleZh      String?
+  sectionType  String   // "intro", "regular", "final_gate"
+  orderIndex   Int
+
+  checkItems   CheckItem[]
+}
+
+model CheckItem {
+  id           String   @id @default(cuid())
+  sectionId    String
+  section      Section  @relation(fields: [sectionId], references: [id])
+  itemGroup    String?  // e.g., "Problem 1.1", "Alcumus", "End of Chapter"
+  itemType     String   // "try", "aops_way", "alcumus_green", "alcumus_blue", "review_read", "review_q", "challenge"
+  labelEn      String
+  labelZh      String?
+  isRepeatable Boolean  @default(false)
+  orderIndex   Int
+
+  checkmarks   Checkmark[]
+}
+
+model Checkmark {
+  id               String   @id @default(cuid())
+  childId          String
+  child            Child    @relation(fields: [childId], references: [id])
+  checkItemId      String
+  checkItem        CheckItem @relation(fields: [checkItemId], references: [id])
+  
+  status           String   @default("active") // "active", "undone", "needs_fix"
+  parentReviewStatus String @default("unreviewed") // "unreviewed", "ok", "needs_fix"
+  parentNote       String?
+
+  createdByUserId  String
+  createdByUser    User     @relation("CreatedBy", fields: [createdByUserId], references: [id])
+  checkedAt        DateTime @default(now())
+
+  undoneByUserId   String?
+  undoneByUser     User?    @relation("UndoneBy", fields: [undoneByUserId], references: [id])
+  undoneAt         DateTime?
+}

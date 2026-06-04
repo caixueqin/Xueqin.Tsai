@@ -1,0 +1,152 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: var(--surface-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.mainContent {
+  flex: 1;
+  padding: 24px 20px;
+  overflow-y: auto;
+  padding-bottom: 80px; /* space for bottom nav */
+}
+
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  height: 60px;
+  background-color: var(--surface-color);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 10;
+}
+
+.navItem {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 10px;
+  transition: color 0.2s ease;
+}
+
+.navItem:hover {
+  color: var(--text-main);
+}
+
+/* Page specific styles */
+.header {
+  margin-bottom: 24px;
+}
+
+.greeting {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.title {
+  font-size: 24px;
+  margin: 4px 0 0 0;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.sectionBox {
+  background-color: var(--bg-color);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+.checkList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkItemRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  background-color: var(--surface-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkBtn.checked {
+  background-color: var(--gem-green);
+  border-color: var(--gem-green);
+  color: white;
+  animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.checkBtn.blue {
+  border-radius: 4px; /* diamond-ish */
+}
+.checkBtn.blue.checked {
+  background-color: var(--gem-blue);
+  border-color: var(--gem-blue);
+}
+
+.checkBtn.circle {
+  border-radius: 50%;
+}
+
+.itemLabel {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.saveBtn {
+  width: 100%;
+  background-color: var(--text-main);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 10px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
+}
+
+.saveBtn:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
+}
+
+.sectionTitleRow {
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.sectionTitleRow:hover {
+  transform: translateX(6px);
+  opacity: 0.7;
+}

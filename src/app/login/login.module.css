@@ -1,0 +1,92 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.card {
+  background: var(--surface-color);
+  padding: 40px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.title {
+  font-size: 24px;
+  margin: 0 0 8px 0;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 32px 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.inputGroup input {
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  background-color: var(--bg-color);
+}
+
+.inputGroup input:focus {
+  border-color: var(--gem-green);
+}
+
+.submitBtn {
+  background-color: var(--gem-green);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 14px;
+  border-radius: 12px;
+  margin-top: 10px;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.submitBtn:hover {
+  background-color: #2ebc89;
+  transform: translateY(-2px);
+}
+
+.submitBtn:active {
+  transform: translateY(0);
+}
+
+.error {
+  color: #ef4444;
+  font-size: 14px;
+  background: #fee2e2;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 0;
+}
