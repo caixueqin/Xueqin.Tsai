@@ -46,7 +46,7 @@ async function main() {
     })
   }
 
-  const alcumusIniPath = path.join(process.cwd(), '../Instructions/# Alcumus 练习 Focus 索引.ini')
+  const alcumusIniPath = path.join(process.cwd(), 'data', '# Alcumus 练习 Focus 索引.ini')
   const alcumusContent = fs.readFileSync(alcumusIniPath, 'utf-8')
   const alcumusMap: Record<string, string> = {}
   for (const line of alcumusContent.split('\n')) {
@@ -59,7 +59,7 @@ async function main() {
   }
 
   // 2. Read INI file
-  const iniPath = path.join(process.cwd(), '../Instructions/# AoPS Prealgebra 1-6 章节题目矿洞打卡点地图.ini')
+  const iniPath = path.join(process.cwd(), 'data', '# AoPS Prealgebra 1-6 章节题目矿洞打卡点地图.ini')
   const content = fs.readFileSync(iniPath, 'utf-8')
   const lines = content.split('\n').map(l => l.trim()).filter(l => l.length > 0)
 
