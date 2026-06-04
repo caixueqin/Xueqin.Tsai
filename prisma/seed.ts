@@ -34,7 +34,7 @@ async function main() {
     data: { name: 'Parent', role: 'parent', password: 'parent' }
   })
 
-  const childrenNames = ['Yao', 'Sean', 'Mia', 'Leo']
+  const childrenNames = ['Yao', 'Sean', 'Shirley', 'Jeff']
   const childrenPins = ['1111', '1234', '1234', '1234']
   
   for (let i = 0; i < childrenNames.length; i++) {
