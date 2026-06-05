@@ -5,14 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "prebuild": "rm -f src/middleware.ts src/proxy.ts",
-    "build": "npx prisma generate && next build",
-    "db:setup": "node db-setup.js",
+    "build": "node runtime-init.js && npx prisma generate && next build",
     "db:push": "npx prisma db push --accept-data-loss",
-    "build:deploy": "rm -rf .next .prisma prisma/.prisma && npm run db:setup && npm run db:push && npm run build",
-    "postinstall": "if [ \"$NODE_ENV\" = \"production\" ]; then npm run build:deploy; fi",
-    "prestart": "rm -f src/middleware.ts src/proxy.ts",
-    "start": "sh -c 'NODE_ENV=production PRISMA_CLIENT_ENGINE_TYPE=library node runtime-init.js && NODE_ENV=production PRISMA_CLIENT_ENGINE_TYPE=library node index.js'",
+    "start": "rm -rf .next && npm run build && npm run db:push && node index.js",
     "lint": "eslint"
   },
   "dependencies": {
