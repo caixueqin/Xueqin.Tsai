@@ -4,6 +4,9 @@ const next = require('next');
 const fs = require('fs');
 const path = require('path');
 
+// Force production mode when the custom server starts in deployment.
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
 // 1. Run GoDaddy DB setup
 if (process.env.DB_HOST) {
     const user = process.env.DB_USER || '';
