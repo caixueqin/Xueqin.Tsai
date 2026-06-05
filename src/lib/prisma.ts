@@ -3,9 +3,16 @@ import { PrismaClient } from '@prisma/client'
 import { createClient } from '@libsql/client'
 import { PrismaLibSQL } from '@prisma/adapter-libsql'
 
+const rawUrl = process.env.DATABASE_URL;
+// 拦截 Turbopack 编译时注入的 "undefined" 字符串陷阱
+const dbUrl = (!rawUrl || rawUrl === 'undefined' || rawUrl === 'null') ? 'file:./dev.db' : rawUrl;
+
+const rawToken = process.env.TURSO_AUTH_TOKEN;
+const authToken = (!rawToken || rawToken === 'undefined' || rawToken === 'null') ? undefined : rawToken;
+
 const libsql = createClient({
-  url: process.env.DATABASE_URL || 'file:./dev.db',
-  authToken: process.env.TURSO_AUTH_TOKEN,
+  url: dbUrl,
+  authToken: authToken,
 })
 
 const adapter = new PrismaLibSQL(libsql)
