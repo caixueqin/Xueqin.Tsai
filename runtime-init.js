@@ -4,7 +4,6 @@ const { execSync } = require('child_process');
 
 // Force production mode in deployment when start is called directly, ignoring non-standard environments.
 if (process.env.NODE_ENV !== 'development') process.env.NODE_ENV = 'production';
-process.env.PRISMA_CLIENT_ENGINE_TYPE = process.env.PRISMA_CLIENT_ENGINE_TYPE || 'binary';
 
 // 1. Setup DATABASE_URL in .env
 if (process.env.DB_HOST) {
@@ -29,11 +28,6 @@ if (process.env.DB_HOST) {
         envContent += `\n${urlLine}\n`;
     }
     
-    if (envContent.includes('PRISMA_CLIENT_ENGINE_TYPE=')) {
-        envContent = envContent.replace(/PRISMA_CLIENT_ENGINE_TYPE=.*/g, 'PRISMA_CLIENT_ENGINE_TYPE="binary"');
-    } else {
-        envContent += `\nPRISMA_CLIENT_ENGINE_TYPE="binary"\n`;
-    }
     fs.writeFileSync(envPath, envContent);
     console.log("Configured DATABASE_URL for runtime initialization.");
 }

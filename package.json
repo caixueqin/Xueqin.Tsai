@@ -5,18 +5,20 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "node runtime-init.js && PRISMA_CLIENT_ENGINE_TYPE=binary PRISMA_CLI_QUERY_ENGINE_TYPE=binary node ./node_modules/prisma/build/index.js generate && chmod -R 777 node_modules/@prisma/engines || true && NODE_ENV=production PRISMA_CLIENT_ENGINE_TYPE=binary PRISMA_CLI_QUERY_ENGINE_TYPE=binary next build",
-    "start": "rm -rf .next && node runtime-init.js && PRISMA_CLIENT_ENGINE_TYPE=binary PRISMA_CLI_QUERY_ENGINE_TYPE=binary node ./node_modules/prisma/build/index.js generate && chmod -R 777 node_modules/@prisma/engines || true && NODE_ENV=production PRISMA_CLIENT_ENGINE_TYPE=binary PRISMA_CLI_QUERY_ENGINE_TYPE=binary next build && NODE_ENV=production PRISMA_CLIENT_ENGINE_TYPE=binary node index.js",
-    "postinstall": "PRISMA_CLIENT_ENGINE_TYPE=binary PRISMA_CLI_QUERY_ENGINE_TYPE=binary node ./node_modules/prisma/build/index.js generate",
+    "build": "node runtime-init.js && node ./node_modules/prisma/build/index.js generate && NODE_ENV=production next build",
+    "start": "rm -rf .next && node runtime-init.js && node ./node_modules/prisma/build/index.js generate && NODE_ENV=production next build && NODE_ENV=production node index.js",
+    "postinstall": "node ./node_modules/prisma/build/index.js generate",
     "lint": "eslint"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0",
+    "@prisma/adapter-mariadb": "^6.15.0",
+    "@prisma/client": "^6.15.0",
     "jose": "^6.2.3",
     "lucide-react": "^1.17.0",
+    "mariadb": "^3.4.0",
     "mysql2": "^3.9.7",
     "next": "16.2.7",
-    "prisma": "^5.22.0",
+    "prisma": "^6.15.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
