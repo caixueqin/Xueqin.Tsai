@@ -4,8 +4,8 @@ const next = require('next');
 const fs = require('fs');
 const path = require('path');
 
-// Force production mode when the custom server starts in deployment.
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+// Force production mode when the custom server starts in deployment, ignoring non-standard environments.
+if (process.env.NODE_ENV !== 'development') process.env.NODE_ENV = 'production';
 
 // 2. Start Next.js custom server
 const dev = process.env.NODE_ENV !== 'production';

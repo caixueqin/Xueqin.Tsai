@@ -2,9 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// Force production mode in deployment when start is called directly.
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
-process.env.PRISMA_CLIENT_ENGINE_TYPE = process.env.PRISMA_CLIENT_ENGINE_TYPE || 'library';
+// Force production mode in deployment when start is called directly, ignoring non-standard environments.
+if (process.env.NODE_ENV !== 'development') process.env.NODE_ENV = 'production';
+process.env.PRISMA_CLIENT_ENGINE_TYPE = process.env.PRISMA_CLIENT_ENGINE_TYPE || 'binary';
 
 // 1. Setup DATABASE_URL in .env
 if (process.env.DB_HOST) {
