@@ -3,13 +3,7 @@
 
 generator client {
   provider     = "prisma-client-js"
-  engineType   = "binary"
-  binaryTargets = [
-    "linux-openssl-3.0.x",
-    "debian-openssl-3.0.x",
-    "rhel-openssl-3.0.x",
-    "linux-musl-openssl-3.0.x"
-  ]
+  engineType   = "library"
 }
 
 datasource db {
