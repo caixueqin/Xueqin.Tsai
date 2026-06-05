@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { PrismaClient } from '@prisma/client'
-import { createClient } from '@libsql/client'
 import { PrismaLibSQL } from '@prisma/adapter-libsql'
 
 function normalizeEnv(value: string | undefined) {
@@ -16,12 +15,10 @@ if (!dbUrl) {
 
 const authToken = normalizeEnv(process.env.TURSO_AUTH_TOKEN)
 
-const libsql = createClient({
+const adapter = new PrismaLibSQL({
   url: dbUrl,
   authToken: authToken,
 })
-
-const adapter = new PrismaLibSQL(libsql)
 
 // Initialize Prisma with the adapter
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
