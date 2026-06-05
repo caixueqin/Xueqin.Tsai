@@ -28,11 +28,6 @@ if (process.env.DB_HOST) {
     console.log("Configured DATABASE_URL for runtime initialization.");
 }
 
-// 2. Run Prisma DB Push to create tables in the empty database
-try {
-    console.log("Running prisma db push to create tables...");
-    execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
-    console.log("Tables created successfully.");
-} catch (error) {
-    console.error("Error creating tables:", error);
-}
+// 2. In this deployment flow, schema migration is handled during build time.
+//    runtime-init only needs to ensure DATABASE_URL is present for runtime.
+console.log("runtime-init finished: DATABASE_URL is configured.");
