@@ -1,4 +1,4 @@
-export function middleware(request: Request) {
+export function proxy(request: Request) {
   const url = new URL(request.url)
 
   if (url.pathname === '/' && request.method === 'HEAD') {
