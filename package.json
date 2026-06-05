@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "node db-setup.js && prisma generate && prisma db push && next build",
+    "build": "node db-setup.js && prisma generate && next build",
     "start": "node runtime-init.js && node index.js",
     "lint": "eslint"
   },

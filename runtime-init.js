@@ -10,6 +10,8 @@ if (process.env.DB_HOST) {
     const portDB = process.env.DB_PORT || '3306';
     const dbName = process.env.DB_NAME || '';
     const url = `mysql://${user}:${password}@${host}:${portDB}/${dbName}`;
+    // Ensure the running Node process sees DATABASE_URL immediately
+    process.env.DATABASE_URL = url;
     
     const envPath = path.join(__dirname, '.env');
     let envContent = '';

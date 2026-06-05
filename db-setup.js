@@ -11,6 +11,8 @@ if (process.env.DB_HOST) {
     
     // Construct the standard Prisma connection string
     const url = `mysql://${user}:${password}@${host}:${port}/${dbName}`;
+    // Make DATABASE_URL available to this Node process immediately
+    process.env.DATABASE_URL = url;
     
     // Write it to .env so Prisma and Next.js can pick it up
     const envPath = path.join(__dirname, '.env');
