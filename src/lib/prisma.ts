@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaMariadb } from '@prisma/adapter-mariadb'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { createPool } from 'mariadb'
 
 // Extract the connection string from environment variables
@@ -9,7 +9,7 @@ const connectionString = process.env.DATABASE_URL || ''
 const pool = createPool(connectionString)
 
 // Bind the pool to the Prisma adapter
-const adapter = new PrismaMariadb(pool)
+const adapter = new PrismaMariaDb(pool)
 
 // Initialize Prisma with the adapter
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
