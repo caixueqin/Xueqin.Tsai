@@ -8,7 +8,7 @@ export function proxy(request: Request) {
   return fetch(request)
 }
 
-export default proxy
+export default proxy;
 
 export const config = {
   matcher: '/',
