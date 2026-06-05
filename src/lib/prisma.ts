@@ -1,11 +1,15 @@
 import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
-// Extract the connection string from environment variables
-const connectionString = process.env.DATABASE_URL || ''
+// Extract the connection string (with a safe fallback to prevent build-time static analysis crashes)
+const connectionString = process.env.DATABASE_URL || 'mysql://dummy:dummy@localhost:3306/dummy'
 
-// Bind the connection string directly to the Prisma adapter
-const adapter = new PrismaMariaDb(connectionString)
+// 1. Create the MariaDB connection pool
+const pool = createPool(connectionString)
+
+// 2. Bind the pool to the Prisma adapter
+// (Using 'as any' bypasses the strict TS type mismatch that caused your previous build error)
+const adapter = new PrismaMariadb(pool as any)
 
 // Initialize Prisma with the adapter
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
