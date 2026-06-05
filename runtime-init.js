@@ -28,6 +28,12 @@ if (process.env.DB_HOST) {
     } else {
         envContent += `\n${urlLine}\n`;
     }
+    
+    if (envContent.includes('PRISMA_CLIENT_ENGINE_TYPE=')) {
+        envContent = envContent.replace(/PRISMA_CLIENT_ENGINE_TYPE=.*/g, 'PRISMA_CLIENT_ENGINE_TYPE="binary"');
+    } else {
+        envContent += `\nPRISMA_CLIENT_ENGINE_TYPE="binary"\n`;
+    }
     fs.writeFileSync(envPath, envContent);
     console.log("Configured DATABASE_URL for runtime initialization.");
 }
