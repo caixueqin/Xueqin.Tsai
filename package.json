@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "rm -f src/middleware.ts src/proxy.ts",
-    "build": "rm -f prisma.config.ts prisma.config.js && rm -rf node_modules .prisma prisma/.prisma .next && npm ci --no-audit --no-fund && node db-setup.js && PRISMA_CLI_QUERY_ENGINE_TYPE=binary npx prisma --version && PRISMA_CLI_QUERY_ENGINE_TYPE=binary npx prisma generate --schema=prisma/schema.prisma && npx prisma db push --accept-data-loss && next build",
+    "build": "rm -f prisma.config.ts prisma.config.js && rm -rf node_modules .prisma prisma/.prisma .next && npm ci --cache /tmp/npm-cache --prefer-offline --unsafe-perm --no-audit --no-fund && node db-setup.js && PRISMA_CLI_QUERY_ENGINE_TYPE=binary npx prisma --version && PRISMA_CLI_QUERY_ENGINE_TYPE=binary npx prisma generate --schema=prisma/schema.prisma && npx prisma db push --accept-data-loss && next build",
     "postinstall": "if [ \"$NODE_ENV\" = \"production\" ]; then npm run build; fi",
     "prestart": "rm -f src/middleware.ts src/proxy.ts && [ -d .next ] || npm run build",
     "start": "sh -c 'PRISMA_CLIENT_ENGINE_TYPE=binary NODE_ENV=production node runtime-init.js && PRISMA_CLIENT_ENGINE_TYPE=binary NODE_ENV=production node index.js'",
