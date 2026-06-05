@@ -3,18 +3,25 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { createPool } from 'mariadb'
 
-// Extract the connection string (with a safe fallback to prevent build-time static analysis crashes)
-const connectionString = process.env.DATABASE_URL || 'mysql://dummy:dummy@localhost:3306/dummy'
+let pool;
 
-// The mariadb driver strictly requires the mariadb:// protocol, but Prisma config uses mysql://
-const mariadbString = connectionString.replace(/^mysql:\/\//, 'mariadb://')
+if (process.env.DB_HOST) {
+  // On GoDaddy: Use raw variables directly to completely avoid URL parsing bugs with special characters in passwords
+  pool = createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
+    connectionLimit: 10
+  });
+} else {
+  // Local fallback
+  const connectionString = process.env.DATABASE_URL || 'mysql://dummy:dummy@localhost:3306/dummy'
+  pool = createPool(connectionString.replace(/^mysql:\/\//, 'mariadb://'))
+}
 
-// 1. Create the MariaDB connection pool
-const pool = createPool(mariadbString)
-
-// 2. Bind the pool to the Prisma adapter
-// (Using 'as any' bypasses the strict TS type mismatch that caused your previous build error)
-const adapter = new PrismaMariaDb(pool as any)
+const adapter = new PrismaMariadb(pool)
 
 // Initialize Prisma with the adapter
 const globalForPrisma = global as unknown as { prisma: PrismaClient }

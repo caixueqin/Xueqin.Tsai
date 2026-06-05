@@ -7,8 +7,8 @@ if (process.env.NODE_ENV !== 'development') process.env.NODE_ENV = 'production';
 
 // 1. Setup DATABASE_URL in .env
 if (process.env.DB_HOST) {
-    const user = process.env.DB_USER || '';
-    const password = process.env.DB_PASSWORD || '';
+    const user = encodeURIComponent(process.env.DB_USER || '');
+    const password = encodeURIComponent(process.env.DB_PASSWORD || '');
     const host = process.env.DB_HOST || '';
     const portDB = process.env.DB_PORT || '3306';
     const dbName = process.env.DB_NAME || '';
