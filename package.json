@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "PRISMA_CLIENT_ENGINE_TYPE=library node ./node_modules/prisma/build/index.js generate && DATABASE_URL='mysql://invalid:invalid@invalid:3306/invalid' PRISMA_CLIENT_ENGINE_TYPE=library NODE_ENV=production next build",
-    "start": "rm -rf .next && npm run build && node runtime-init.js && NODE_ENV=production node index.js",
+    "start": "rm -rf .next && npm run build && node runtime-init.js && PRISMA_CLIENT_ENGINE_TYPE=library NODE_ENV=production node index.js",
     "postinstall": "PRISMA_CLIENT_ENGINE_TYPE=library node ./node_modules/prisma/build/index.js generate",
     "lint": "eslint"
   },
