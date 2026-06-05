@@ -21,7 +21,7 @@ if (process.env.DB_HOST) {
   pool = createPool(connectionString.replace(/^mysql:\/\//, 'mariadb://'))
 }
 
-const adapter = new PrismaMariadb(pool)
+const adapter = new PrismaMariaDb(pool)
 
 // Initialize Prisma with the adapter
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
