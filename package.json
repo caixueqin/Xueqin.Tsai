@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "node runtime-init.js && npx prisma generate && next build",
-    "db:push": "npx prisma db push --accept-data-loss",
-    "start": "rm -rf .next && npm run build && npm run db:push && node index.js",
+    "start": "rm -rf .next && node runtime-init.js && npx prisma generate && next build && npx prisma db push --accept-data-loss && node index.js",
     "lint": "eslint"
   },
   "dependencies": {
