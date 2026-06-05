@@ -1,15 +1,15 @@
-export function proxy(request: Request) {
-  const url = new URL(request.url)
+import { NextResponse, type NextRequest } from 'next/server'
 
-  if (url.pathname === '/' && request.method === 'HEAD') {
-    return new Response('OK', { status: 200 })
+export function proxy(request: NextRequest) {
+  if (!request.cookies.get('session')?.value) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  return fetch(request)
+  return NextResponse.next()
 }
 
 export default proxy;
 
 export const config = {
-  matcher: '/',
+  matcher: ['/child/:path*', '/parent/:path*'],
 }
