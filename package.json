@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "node db-setup.js && prisma generate && next build",
-    "start": "node runtime-init.js && node index.js",
+    "start": "NODE_ENV=production node runtime-init.js && NODE_ENV=production node index.js",
     "lint": "eslint"
   },
   "dependencies": {
