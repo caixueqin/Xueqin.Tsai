@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "rm -f prisma.config.ts prisma.config.js && node db-setup.js && prisma generate && prisma db push --accept-data-loss && next build",
+    "build": "rm -f prisma.config.ts prisma.config.js && rm -rf node_modules && npm ci --no-audit --no-fund && node db-setup.js && npx prisma --version && npx prisma generate && npx prisma db push --accept-data-loss && next build",
     "start": "node runtime-init.js && node index.js",
     "lint": "eslint"
   },
