@@ -3,33 +3,29 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { createPool } from 'mariadb'
 
-let pool;
+// We explicitly hardcode the connection string so GoDaddy Preview ENV doesn't hijack it
+const connectionString = 'mysql://localhost:MathCraft314@118.139.180.144:3306/MathCraft';
+const parsedUrl = new URL(connectionString);
 
-if (process.env.DB_HOST) {
-  // On GoDaddy: Use raw variables directly to completely avoid URL parsing bugs with special characters in passwords
-  pool = createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
-    
-    // Give the preview environment more time to connect
-    connectTimeout: 10_000,
-    acquireTimeout: 30_000,
+const host = parsedUrl.hostname;
+const port = parseInt(parsedUrl.port, 10) || 3306;
+const user = decodeURIComponent(parsedUrl.username);
+const password = decodeURIComponent(parsedUrl.password);
+const database = parsedUrl.pathname.substring(1);
 
-    connectionLimit: 2,
-    idleTimeout: 300
-  });
+const pool = createPool({
+  host,
+  user,
+  password,
+  database,
+  port,
+  connectTimeout: 10000,
+  acquireTimeout: 30000,
+  connectionLimit: 2,
+  idleTimeout: 300
+});
 
-  console.log(`[DB Config] Host: ${process.env.DB_HOST}, Port: ${process.env.DB_PORT || 3306}, DB: ${process.env.DB_NAME}, User provided: ${!!process.env.DB_USER}, Password provided: ${!!process.env.DB_PASSWORD}`);
-} else {
-  // Local fallback
-  const connectionString = process.env.DATABASE_URL || 'mysql://dummy:dummy@localhost:3306/dummy'
-  pool = createPool(connectionString.replace(/^mysql:\/\//, 'mariadb://'))
-
-  console.log(`[DB Config] Using fallback connection string. URL provided: ${!!process.env.DATABASE_URL}`);
-}
+console.log(`[DB Config] Host: ${host}, Port: ${port}, DB: ${database}, User provided: ${!!user}, Password provided: ${!!password}`);
 
 const adapter = new PrismaMariaDb(pool)
 

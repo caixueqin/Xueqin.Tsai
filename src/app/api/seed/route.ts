@@ -18,6 +18,10 @@ function parseProblemRange(text: string): { start: number, end: number, prefix: 
 }
 
 export async function GET(request: Request) {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Seed route is permanently disabled in production to prevent data loss.' }, { status: 403 });
+  }
+
   try {
     console.log('Clearing database...')
     await prisma.checkmark.deleteMany()
