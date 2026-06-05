@@ -17,7 +17,7 @@ function parseProblemRange(text: string): { start: number, end: number, prefix: 
   return null
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     console.log('Clearing database...')
     await prisma.checkmark.deleteMany()

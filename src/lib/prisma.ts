@@ -13,12 +13,22 @@ if (process.env.DB_HOST) {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
-    connectionLimit: 10
+    
+    // Give the preview environment more time to connect
+    connectTimeout: 10_000,
+    acquireTimeout: 30_000,
+
+    connectionLimit: 2,
+    idleTimeout: 300
   });
+
+  console.log(`[DB Config] Host: ${process.env.DB_HOST}, Port: ${process.env.DB_PORT || 3306}, DB: ${process.env.DB_NAME}, User provided: ${!!process.env.DB_USER}, Password provided: ${!!process.env.DB_PASSWORD}`);
 } else {
   // Local fallback
   const connectionString = process.env.DATABASE_URL || 'mysql://dummy:dummy@localhost:3306/dummy'
   pool = createPool(connectionString.replace(/^mysql:\/\//, 'mariadb://'))
+
+  console.log(`[DB Config] Using fallback connection string. URL provided: ${!!process.env.DATABASE_URL}`);
 }
 
 const adapter = new PrismaMariaDb(pool)
