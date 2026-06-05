@@ -14,7 +14,17 @@ if (process.env.DB_HOST) {
     
     // Write it to .env so Prisma and Next.js can pick it up
     const envPath = path.join(__dirname, '.env');
-    fs.appendFileSync(envPath, `\nDATABASE_URL="${url}"\n`);
+    let envContent = '';
+    if (fs.existsSync(envPath)) {
+        envContent = fs.readFileSync(envPath, 'utf8');
+    }
+    const urlLine = `DATABASE_URL="${url}"`;
+    if (envContent.includes('DATABASE_URL=')) {
+        envContent = envContent.replace(/DATABASE_URL=.*/g, urlLine);
+    } else {
+        envContent += `\n${urlLine}\n`;
+    }
+    fs.writeFileSync(envPath, envContent);
     
     console.log("Configured DATABASE_URL from GoDaddy managed database variables.");
 }

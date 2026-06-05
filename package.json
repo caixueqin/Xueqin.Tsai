@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && next build",
-    "start": "next start",
+    "build": "node db-setup.js && prisma generate && prisma db push && next build",
+    "start": "node db-setup.js && next start -p ${PORT:-3000}",
     "lint": "eslint"
   },
   "prisma": {
