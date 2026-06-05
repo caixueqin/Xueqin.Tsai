@@ -18,18 +18,42 @@ function parseProblemRange(text: string): { start: number, end: number, prefix: 
 }
 
 export async function GET(request: Request) {
-  if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'Seed route is permanently disabled in production to prevent data loss.' }, { status: 403 });
-  }
-
   try {
-    console.log('Clearing database...')
-    await prisma.checkmark.deleteMany()
-    await prisma.checkItem.deleteMany()
-    await prisma.section.deleteMany()
-    await prisma.chapter.deleteMany()
-    await prisma.child.deleteMany()
-    await prisma.user.deleteMany()
+    const isProduction = process.env.NODE_ENV === 'production'
+
+    if (isProduction) {
+      const [userCount, childCount, chapterCount, sectionCount, checkItemCount, checkmarkCount] = await Promise.all([
+        prisma.user.count(),
+        prisma.child.count(),
+        prisma.chapter.count(),
+        prisma.section.count(),
+        prisma.checkItem.count(),
+        prisma.checkmark.count(),
+      ])
+
+      const hasExistingData =
+        userCount > 0 ||
+        childCount > 0 ||
+        chapterCount > 0 ||
+        sectionCount > 0 ||
+        checkItemCount > 0 ||
+        checkmarkCount > 0
+
+      if (hasExistingData) {
+        return NextResponse.json(
+          { error: 'Seed route is disabled because production data already exists.' },
+          { status: 409 }
+        )
+      }
+    } else {
+      console.log('Clearing database...')
+      await prisma.checkmark.deleteMany()
+      await prisma.checkItem.deleteMany()
+      await prisma.section.deleteMany()
+      await prisma.chapter.deleteMany()
+      await prisma.child.deleteMany()
+      await prisma.user.deleteMany()
+    }
 
     // 1. Create Users
     await prisma.user.create({
