@@ -3,12 +3,18 @@ import { PrismaClient } from '@prisma/client'
 import { createClient } from '@libsql/client'
 import { PrismaLibSQL } from '@prisma/adapter-libsql'
 
-const rawUrl = process.env.DATABASE_URL;
-// 拦截 Turbopack 编译时注入的 "undefined" 字符串陷阱
-const dbUrl = (!rawUrl || rawUrl === 'undefined' || rawUrl === 'null') ? 'file:./dev.db' : rawUrl;
+function normalizeEnv(value: string | undefined) {
+  return !value || value === 'undefined' || value === 'null' ? undefined : value
+}
 
-const rawToken = process.env.TURSO_AUTH_TOKEN;
-const authToken = (!rawToken || rawToken === 'undefined' || rawToken === 'null') ? undefined : rawToken;
+const rawUrl = normalizeEnv(process.env.DATABASE_URL) || normalizeEnv(process.env.TURSO_DATABASE_URL)
+const dbUrl = rawUrl || (process.env.NODE_ENV === 'production' ? undefined : 'file:./dev.db')
+
+if (!dbUrl) {
+  throw new Error('Missing database URL. Set DATABASE_URL or TURSO_DATABASE_URL in Vercel environment variables.')
+}
+
+const authToken = normalizeEnv(process.env.TURSO_AUTH_TOKEN)
 
 const libsql = createClient({
   url: dbUrl,
