@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "node db-setup.js && prisma generate && prisma db push && next build",
-    "start": "node db-setup.js && next start -p ${PORT:-3000}",
+    "start": "node index.js",
     "lint": "eslint"
   },
   "prisma": {
