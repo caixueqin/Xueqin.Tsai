@@ -1,12 +1,28 @@
 'use client'
 
-import { useTransition, useState, useRef, useEffect } from 'react'
-import { toggleCheckmarkAction, enterNextMineAction } from './actions'
+import { useTransition, useState, useRef, useEffect, useMemo } from 'react'
+import { enterNextMineAction } from './actions'
 import styles from './child.module.css'
 import Link from 'next/link'
-import { Flag, Star, CheckCircle2, PenTool, BookOpen, Diamond, Lock, ChevronDown, ChevronUp, Trophy } from 'lucide-react'
+import { Flag, Star, CheckCircle2, PenTool, BookOpen, Lock, ChevronDown, Trophy, RefreshCw } from 'lucide-react'
 
 const THEME_COLOR = '#55A867'
+
+type SyncState = 'syncing' | 'synced' | 'failed'
+type LocalMark = {
+  id: string
+  checkItemId: string
+  childId: string
+  status?: string
+  checkedAt?: string | Date
+  optimistic?: boolean
+}
+type PendingOperation = {
+  action: 'create' | 'undo'
+  itemId: string
+  tempMark?: LocalMark
+  removedMarks?: LocalMark[]
+}
 
 export default function RoadmapClient({ 
   child, 
@@ -20,14 +36,78 @@ export default function RoadmapClient({
   hasMarkedToday: boolean
 }) {
   const [isPending, startTransition] = useTransition()
+  const [marks, setMarks] = useState<LocalMark[]>(allMarks)
+  const [syncStates, setSyncStates] = useState<Record<string, SyncState>>({})
+  const [failedOperations, setFailedOperations] = useState<Record<string, PendingOperation>>({})
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const defaultExpanded = useRef<Record<string, boolean> | null>(null)
   const prevActiveIndex = useRef<number | null>(null)
 
-  const handleToggle = (itemId: string, isChecked: boolean) => {
-    startTransition(() => {
-      toggleCheckmarkAction(child.id, itemId, isChecked)
+  const syncCheckmark = async (operation: PendingOperation) => {
+    setSyncStates(prev => ({ ...prev, [operation.itemId]: 'syncing' }))
+    setFailedOperations(prev => {
+      const next = { ...prev }
+      delete next[operation.itemId]
+      return next
     })
+
+    try {
+      const response = await fetch('/api/checkmarks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          checkItemId: operation.itemId,
+          action: operation.action,
+        }),
+      })
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Sync failed')
+      }
+
+      if (operation.action === 'create' && result.checkmark) {
+        setMarks(prev =>
+          prev.map(mark =>
+            mark.id === operation.tempMark?.id
+              ? { ...result.checkmark, optimistic: false }
+              : mark
+          )
+        )
+      }
+      if (operation.action === 'undo') {
+        setMarks(prev => prev.filter(mark => mark.checkItemId !== operation.itemId))
+      }
+
+      setSyncStates(prev => ({ ...prev, [operation.itemId]: 'synced' }))
+    } catch {
+      if (operation.action === 'undo') {
+        setMarks(prev => [...(operation.removedMarks || []), ...prev])
+      }
+      setSyncStates(prev => ({ ...prev, [operation.itemId]: 'failed' }))
+      setFailedOperations(prev => ({ ...prev, [operation.itemId]: operation }))
+    }
+  }
+
+  const handleToggle = (item: any, isChecked: boolean) => {
+    if (!item.isRepeatable && isChecked) {
+      const removedMarks = marks.filter(mark => mark.checkItemId === item.id)
+      setMarks(prev => prev.filter(mark => mark.checkItemId !== item.id))
+      syncCheckmark({ action: 'undo', itemId: item.id, removedMarks })
+      return
+    }
+
+    const tempMark: LocalMark = {
+      id: `optimistic-${item.id}-${Date.now()}`,
+      childId: child.id,
+      checkItemId: item.id,
+      status: 'active',
+      checkedAt: new Date().toISOString(),
+      optimistic: true,
+    }
+
+    setMarks(prev => item.isRepeatable ? [...prev, tempMark] : [...prev.filter(mark => mark.checkItemId !== item.id), tempMark])
+    syncCheckmark({ action: 'create', itemId: item.id, tempMark })
   }
 
   const handleNextMine = () => {
@@ -43,14 +123,14 @@ export default function RoadmapClient({
     }))
   }
 
-  const sectionData = chapter.sections.map((section: any, idx: number) => {
+  const sectionData = useMemo(() => chapter.sections.map((section: any, idx: number) => {
     const checkItems = section.checkItems || []
     
     const alcumusGreen = checkItems.find((i: any) => i.itemType === 'alcumus_green')
     const alcumusBlue = checkItems.find((i: any) => i.itemType === 'alcumus_blue')
     
-    const hasGreen = alcumusGreen ? allMarks.some(m => m.checkItemId === alcumusGreen.id) : false
-    const hasBlue = alcumusBlue ? allMarks.some(m => m.checkItemId === alcumusBlue.id) : false
+    const hasGreen = alcumusGreen ? marks.some(m => m.checkItemId === alcumusGreen.id) : false
+    const hasBlue = alcumusBlue ? marks.some(m => m.checkItemId === alcumusBlue.id) : false
 
     let isUnlocked = true
     if (idx > 0) {
@@ -59,13 +139,13 @@ export default function RoadmapClient({
       const prevAlcumusBlue = prevSection.checkItems.find((i: any) => i.itemType === 'alcumus_blue')
       
       if (prevAlcumusGreen || prevAlcumusBlue) {
-        const prevHasGreen = prevAlcumusGreen ? allMarks.some(m => m.checkItemId === prevAlcumusGreen.id) : false
-        const prevHasBlue = prevAlcumusBlue ? allMarks.some(m => m.checkItemId === prevAlcumusBlue.id) : false
+        const prevHasGreen = prevAlcumusGreen ? marks.some(m => m.checkItemId === prevAlcumusGreen.id) : false
+        const prevHasBlue = prevAlcumusBlue ? marks.some(m => m.checkItemId === prevAlcumusBlue.id) : false
         isUnlocked = prevHasGreen || prevHasBlue
       } else {
         if (prevSection.checkItems.length > 0) {
            const lastItem = prevSection.checkItems[prevSection.checkItems.length - 1]
-           isUnlocked = allMarks.some(m => m.checkItemId === lastItem.id)
+           isUnlocked = marks.some(m => m.checkItemId === lastItem.id)
         }
       }
     }
@@ -88,7 +168,7 @@ export default function RoadmapClient({
       hasBlue,
       groups
     }
-  })
+  }), [chapter.sections, marks])
 
   // Find the first locked section to apply pulse animation
   const firstLockedIndex = sectionData.findIndex((s: any) => !s.isUnlocked)
@@ -115,7 +195,7 @@ export default function RoadmapClient({
     prevActiveIndex.current = activeSectionIndex
   }, [activeSectionIndex, sectionData])
 
-  const hasClearedFinalGate = sectionData.some((s: any) => s.sectionType === 'final_gate' && allMarks.some((m: any) => s.checkItems.some((i: any) => i.id === m.checkItemId)))
+  const hasClearedFinalGate = sectionData.some((s: any) => s.sectionType === 'final_gate' && marks.some((m: any) => s.checkItems.some((i: any) => i.id === m.checkItemId)))
 
   return (
     <>
@@ -155,8 +235,8 @@ export default function RoadmapClient({
 
         {sectionData.map((section: any, idx: number) => {
           const isActive = idx === activeSectionIndex
-          const isCompleted = section.hasBlue || section.hasGreen || section.groups.every((g: any) => g.items.every((i: any) => allMarks.some((m: any) => m.checkItemId === i.id)))
-          const isPerfectClear = section.checkItems.length > 0 && section.checkItems.every((i: any) => allMarks.some((m: any) => m.checkItemId === i.id))
+          const isCompleted = section.hasBlue || section.hasGreen || section.groups.every((g: any) => g.items.every((i: any) => marks.some((m: any) => m.checkItemId === i.id)))
+          const isPerfectClear = section.checkItems.length > 0 && section.checkItems.every((i: any) => marks.some((m: any) => m.checkItemId === i.id))
           const isLocked = !section.isUnlocked
           
           const themeColor = THEME_COLOR
@@ -238,12 +318,13 @@ export default function RoadmapClient({
                   {section.groups.map((group: any, idx: number) => {
                     const items = group.items
                     const groupName = group.name
-                    const allItemsChecked = items.every((i: any) => allMarks.some(m => m.checkItemId === i.id))
+                    const allItemsChecked = items.every((i: any) => marks.some(m => m.checkItemId === i.id))
                     const displayGroupName = groupName.replace('Problem ', '')
 
                     // Helper to render an item button
                     const renderItemButton = (item: any) => {
-                      const isChecked = allMarks.some(m => m.checkItemId === item.id)
+                      const isChecked = marks.some(m => m.checkItemId === item.id)
+                      const syncState = syncStates[item.id]
                       let bgColor = 'var(--surface-color)'
                       let color = 'var(--text-muted)'
                       
@@ -264,32 +345,50 @@ export default function RoadmapClient({
                       }
 
                       return (
-                        <button 
-                          key={item.id}
-                          onClick={() => handleToggle(item.id, isChecked)}
-                          disabled={isPending || !section.isUnlocked}
-                          title={item.labelEn}
-                          className={(!isPending && section.isUnlocked) ? "hover-bounce" : ""}
-                          style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: bgColor,
-                            color: color,
-                            border: isChecked ? 'none' : '2px solid var(--border-color)',
-                            boxShadow: isChecked ? 'var(--shadow-sm)' : 'none',
-                            transform: 'none',
-                            cursor: (isPending || !section.isUnlocked) ? 'not-allowed' : 'pointer',
-                            outline: 'none',
-                            flexShrink: 0,
-                            transition: 'all 0.2s'
-                          }}
-                        >
-                          {Icon}
-                        </button>
+                        <div key={item.id} className={styles.checkmarkControl}>
+                          <button 
+                            onClick={() => handleToggle(item, isChecked)}
+                            disabled={!section.isUnlocked || syncState === 'syncing'}
+                            title={item.labelEn}
+                            className={(section.isUnlocked && syncState !== 'syncing') ? "hover-bounce" : ""}
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '12px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: bgColor,
+                              color: color,
+                              border: isChecked ? 'none' : '2px solid var(--border-color)',
+                              boxShadow: isChecked ? 'var(--shadow-sm)' : 'none',
+                              transform: 'none',
+                              cursor: (!section.isUnlocked || syncState === 'syncing') ? 'not-allowed' : 'pointer',
+                              outline: 'none',
+                              flexShrink: 0,
+                              transition: 'all 0.2s',
+                              position: 'relative'
+                            }}
+                          >
+                            {syncState === 'syncing' ? <RefreshCw size={16} className={styles.syncSpin} /> : Icon}
+                            {syncState && (
+                              <span className={`${styles.syncDot} ${styles[syncState]}`} />
+                            )}
+                          </button>
+                        {syncState === 'failed' && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const failedOperation = failedOperations[item.id]
+                              if (failedOperation) syncCheckmark(failedOperation)
+                            }}
+                            className={styles.retryBtn}
+                            title="Retry sync"
+                          >
+                            Retry
+                          </button>
+                        )}
+                        </div>
                       )
                     }
 
