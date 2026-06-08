@@ -6,20 +6,27 @@ import styles from './child.module.css'
 import Link from 'next/link'
 import { Flag, Star, CheckCircle2, PenTool, BookOpen, Lock, ChevronDown, Trophy, RefreshCw } from 'lucide-react'
 
-const THEME_COLOR = '#55A867'
+const SECTION_COLORS = ['#12baaa', '#377ec0', '#f7891f', '#f03f52']
+const SMART_COMPARE_OPTIONS = [
+  { value: 'me', label: 'Me', title: 'My method wins' },
+  { value: 'aops_smarter', label: 'AoPS', title: 'AoPS method wins' },
+  { value: 'tie', label: 'Tie', title: 'Both methods are equally good' },
+]
 
-type SyncState = 'syncing' | 'synced' | 'failed'
+type SyncState = 'syncing' | 'synced'
 type LocalMark = {
   id: string
   checkItemId: string
   childId: string
   status?: string
   checkedAt?: string | Date
+  parentNote?: string | null
   optimistic?: boolean
 }
 type PendingOperation = {
   action: 'create' | 'undo'
   itemId: string
+  parentNote?: string
   tempMark?: LocalMark
   removedMarks?: LocalMark[]
 }
@@ -38,18 +45,12 @@ export default function RoadmapClient({
   const [isPending, startTransition] = useTransition()
   const [marks, setMarks] = useState<LocalMark[]>(allMarks)
   const [syncStates, setSyncStates] = useState<Record<string, SyncState>>({})
-  const [failedOperations, setFailedOperations] = useState<Record<string, PendingOperation>>({})
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const defaultExpanded = useRef<Record<string, boolean> | null>(null)
   const prevActiveIndex = useRef<number | null>(null)
 
   const syncCheckmark = async (operation: PendingOperation) => {
     setSyncStates(prev => ({ ...prev, [operation.itemId]: 'syncing' }))
-    setFailedOperations(prev => {
-      const next = { ...prev }
-      delete next[operation.itemId]
-      return next
-    })
 
     try {
       const response = await fetch('/api/checkmarks', {
@@ -58,6 +59,7 @@ export default function RoadmapClient({
         body: JSON.stringify({
           checkItemId: operation.itemId,
           action: operation.action,
+          parentNote: operation.parentNote,
         }),
       })
       const result = await response.json()
@@ -79,13 +81,29 @@ export default function RoadmapClient({
         setMarks(prev => prev.filter(mark => mark.checkItemId !== operation.itemId))
       }
 
-      setSyncStates(prev => ({ ...prev, [operation.itemId]: 'synced' }))
+      setSyncStates(prev => {
+        const next = { ...prev }
+        if (operation.action === 'create') {
+          next[operation.itemId] = 'synced'
+        } else {
+          delete next[operation.itemId]
+        }
+        return next
+      })
     } catch {
-      if (operation.action === 'undo') {
+      if (operation.action === 'create') {
+        setMarks(prev => [
+          ...(operation.removedMarks || []),
+          ...prev.filter(mark => mark.id !== operation.tempMark?.id)
+        ])
+      } else {
         setMarks(prev => [...(operation.removedMarks || []), ...prev])
       }
-      setSyncStates(prev => ({ ...prev, [operation.itemId]: 'failed' }))
-      setFailedOperations(prev => ({ ...prev, [operation.itemId]: operation }))
+      setSyncStates(prev => {
+        const next = { ...prev }
+        delete next[operation.itemId]
+        return next
+      })
     }
   }
 
@@ -106,8 +124,33 @@ export default function RoadmapClient({
       optimistic: true,
     }
 
+    const removedMarks = item.isRepeatable ? [] : marks.filter(mark => mark.checkItemId === item.id)
     setMarks(prev => item.isRepeatable ? [...prev, tempMark] : [...prev.filter(mark => mark.checkItemId !== item.id), tempMark])
-    syncCheckmark({ action: 'create', itemId: item.id, tempMark })
+    syncCheckmark({ action: 'create', itemId: item.id, tempMark, removedMarks })
+  }
+
+  const handleSmartCompare = (item: any, choice: string) => {
+    const existingMarks = marks.filter(mark => mark.checkItemId === item.id)
+    if (existingMarks.some(mark => mark.parentNote === choice)) return
+
+    const tempMark: LocalMark = {
+      id: `optimistic-${item.id}-${Date.now()}`,
+      childId: child.id,
+      checkItemId: item.id,
+      status: 'active',
+      checkedAt: new Date().toISOString(),
+      parentNote: choice,
+      optimistic: true,
+    }
+
+    setMarks(prev => [...prev.filter(mark => mark.checkItemId !== item.id), tempMark])
+    syncCheckmark({
+      action: 'create',
+      itemId: item.id,
+      parentNote: choice,
+      tempMark,
+      removedMarks: existingMarks,
+    })
   }
 
   const handleNextMine = () => {
@@ -231,7 +274,7 @@ export default function RoadmapClient({
             ? expandedSections[lastSection.id] 
             : (defaultExpanded.current ? defaultExpanded.current[lastSection.id] : false);
           return isLastExpanded ? '20px' : '32px';
-        })(), width: '12px', backgroundColor: '#403F4C', borderRadius: '6px', zIndex: 0 }}></div>
+        })(), width: '12px', backgroundColor: 'var(--gem-purple)', borderRadius: '6px', zIndex: 0 }}></div>
 
         {sectionData.map((section: any, idx: number) => {
           const isActive = idx === activeSectionIndex
@@ -239,7 +282,7 @@ export default function RoadmapClient({
           const isPerfectClear = section.checkItems.length > 0 && section.checkItems.every((i: any) => marks.some((m: any) => m.checkItemId === i.id))
           const isLocked = !section.isUnlocked
           
-          const themeColor = THEME_COLOR
+          const themeColor = SECTION_COLORS[idx % SECTION_COLORS.length]
 
           // Determine if section is expanded
           const isExpanded = expandedSections[section.id] !== undefined 
@@ -264,14 +307,14 @@ export default function RoadmapClient({
                     width: '64px', 
                     height: '64px', 
                     borderRadius: '50%',
-                    backgroundColor: isCompleted ? themeColor : (isLocked ? '#f3f4f6' : 'var(--surface-color)'), 
+                    backgroundColor: isCompleted ? themeColor : (isLocked ? 'var(--gem-gray)' : 'var(--surface-color)'), 
                     zIndex: 2, 
-                    border: `4px solid ${isCompleted ? themeColor : (isLocked ? 'var(--border-color)' : '#403F4C')}`,
+                    border: `4px solid ${isCompleted ? themeColor : (isLocked ? 'var(--border-color)' : 'var(--gem-purple)')}`,
                     boxShadow: isCompleted ? 'inset 0 0 0 4px rgba(255,255,255,0.3), var(--shadow-md)' : (isLocked ? 'none' : 'inset 0 0 0 4px rgba(64,63,76,0.1), var(--shadow-sm)'),
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: isCompleted ? '#fff' : (isLocked ? '#9ca3af' : '#403F4C'),
+                    color: isCompleted ? '#fff' : (isLocked ? '#9ca3af' : 'var(--gem-purple)'),
                     fontSize: '28px',
                     fontFamily: 'var(--font-coiny)',
                     fontWeight: 400,
@@ -281,7 +324,7 @@ export default function RoadmapClient({
                   {isLocked ? <Lock size={20} /> : (section.number === 'Review' ? '★' : section.number.split('.').pop())}
                   
                   {isPerfectClear && (
-                    <div style={{ position: 'absolute', top: '-6px', right: '-6px', backgroundColor: '#F0B200', borderRadius: '50%', padding: '6px', border: '2px solid var(--surface-color)', boxShadow: 'var(--shadow-sm)', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ position: 'absolute', top: '-6px', right: '-6px', backgroundColor: 'var(--gem-yellow)', borderRadius: '50%', padding: '6px', border: '2px solid var(--surface-color)', boxShadow: 'var(--shadow-sm)', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Trophy fill="white" color="white" size={14} />
                     </div>
                   )}
@@ -323,13 +366,52 @@ export default function RoadmapClient({
 
                     // Helper to render an item button
                     const renderItemButton = (item: any) => {
-                      const isChecked = marks.some(m => m.checkItemId === item.id)
+                      const itemMarks = marks.filter(m => m.checkItemId === item.id)
+                      const activeMark = itemMarks[0]
+                      const isChecked = itemMarks.length > 0
                       const syncState = syncStates[item.id]
+                      const selectedCompare = activeMark?.parentNote || null
+
+                      if (item.itemType === 'aops_way') {
+                        return (
+                          <div key={item.id} className={styles.smartCompare}>
+                            <span className={styles.smartCompareLabel}>Who wins</span>
+                            <div className={styles.smartCompareOptions}>
+                              {SMART_COMPARE_OPTIONS.map(option => (
+                                <button
+                                  key={option.value}
+                                  type="button"
+                                  onClick={() => handleSmartCompare(item, option.value)}
+                                  disabled={!section.isUnlocked || syncState === 'syncing'}
+                                  title={option.title}
+                                  className={selectedCompare === option.value ? styles.smartCompareSelected : ''}
+                                >
+                                  {option.label}
+                                  {selectedCompare === option.value && syncState === 'syncing' && (
+                                    <span className={`${styles.syncBadge} ${styles.syncing}`}>
+                                      <RefreshCw size={8} className={styles.syncSpin} />
+                                    </span>
+                                  )}
+                                  {selectedCompare === option.value && syncState === 'synced' && (
+                                    <span className={`${styles.syncBadge} ${styles.synced}`} />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      }
+
                       let bgColor = 'var(--surface-color)'
                       let color = 'var(--text-muted)'
                       
                       if (isChecked) {
-                        bgColor = themeColor
+                        if (item.itemType === 'try') bgColor = 'var(--gem-blue)'
+                        else if (item.itemType === 'alcumus_green') bgColor = 'var(--gem-green)'
+                        else if (item.itemType === 'alcumus_blue') bgColor = 'var(--gem-blue)'
+                        else if (item.itemType === 'challenge') bgColor = 'var(--gem-pink)'
+                        else if (item.itemType === 'review_q') bgColor = 'var(--gem-orange)'
+                        else bgColor = themeColor
                         color = '#fff'
                       }
 
@@ -370,24 +452,16 @@ export default function RoadmapClient({
                               position: 'relative'
                             }}
                           >
-                            {syncState === 'syncing' ? <RefreshCw size={16} className={styles.syncSpin} /> : Icon}
-                            {syncState && (
-                              <span className={`${styles.syncDot} ${styles[syncState]}`} />
+                            {Icon}
+                            {syncState === 'syncing' && (
+                              <span className={`${styles.syncBadge} ${styles.syncing}`}>
+                                <RefreshCw size={8} className={styles.syncSpin} />
+                              </span>
+                            )}
+                            {syncState === 'synced' && (
+                              <span className={`${styles.syncBadge} ${styles.synced}`} />
                             )}
                           </button>
-                        {syncState === 'failed' && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const failedOperation = failedOperations[item.id]
-                              if (failedOperation) syncCheckmark(failedOperation)
-                            }}
-                            className={styles.retryBtn}
-                            title="Retry sync"
-                          >
-                            Retry
-                          </button>
-                        )}
                         </div>
                       )
                     }
@@ -409,7 +483,7 @@ export default function RoadmapClient({
                           height: '18px',
                           borderRadius: '50%',
                           backgroundColor: allItemsChecked ? themeColor : 'var(--surface-color)',
-                          border: `4px solid ${allItemsChecked ? themeColor : '#403F4C'}`,
+                          border: `4px solid ${allItemsChecked ? themeColor : 'var(--gem-purple)'}`,
                           zIndex: 2
                         }} />
 

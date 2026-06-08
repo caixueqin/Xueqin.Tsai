@@ -7,7 +7,14 @@ import { getSession } from '@/lib/auth'
 type CheckmarkRequest = {
   checkItemId?: string
   action?: 'create' | 'undo'
+  parentNote?: string
 }
+
+const SMART_COMPARE_NOTES = new Set([
+  'me',
+  'aops_smarter',
+  'tie',
+])
 
 export async function POST(request: Request) {
   const session = await getSession()
@@ -19,6 +26,9 @@ export async function POST(request: Request) {
   if (!body.checkItemId) {
     return NextResponse.json({ error: 'checkItemId is required' }, { status: 400 })
   }
+  const parentNote = body.parentNote && SMART_COMPARE_NOTES.has(body.parentNote)
+    ? body.parentNote
+    : undefined
 
   const child = await prisma.child.findUnique({ where: { userId: session.user.id } })
   if (!child) {
@@ -70,7 +80,14 @@ export async function POST(request: Request) {
     })
 
     if (existing) {
-      return NextResponse.json({ success: true, checkmark: existing, duplicate: false })
+      const checkmark = parentNote !== undefined
+        ? await prisma.checkmark.update({
+            where: { id: existing.id },
+            data: { parentNote },
+          })
+        : existing
+
+      return NextResponse.json({ success: true, checkmark, duplicate: false })
     }
   }
 
@@ -79,6 +96,7 @@ export async function POST(request: Request) {
       childId: child.id,
       checkItemId: checkItem.id,
       createdByUserId: session.user.id,
+      parentNote,
     },
   })
 

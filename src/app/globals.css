@@ -1,18 +1,22 @@
 :root {
-  /* Vibrant, child-friendly colors */
-  --bg-color: #f0fdf4; /* Very light mint background */
+  /* MathCraft palette */
+  --bg-color: #fff7d7;
   --surface-color: #ffffff;
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
+  --text-main: #2f2f38;
+  --text-muted: #6d6257;
   
-  --border-color: #d1d5db;
+  --border-color: #efd998;
 
   /* Gems/Minerals */
-  --gem-green: #10b981; /* Vibrant Emerald */
-  --gem-green-light: #a7f3d0;
-  --gem-blue: #3b82f6;  /* Vibrant Blue */
-  --gem-blue-light: #bfdbfe;
-  --gem-gray: #e5e7eb;  
+  --gem-green: #12baaa;
+  --gem-green-light: #dffaf7;
+  --gem-blue: #377ec0;
+  --gem-blue-light: #e2f0ff;
+  --gem-pink: #f03f52;
+  --gem-yellow: #fbdf54;
+  --gem-orange: #f7891f;
+  --gem-purple: #403f4c;
+  --gem-gray: #f3ead0;  
   
   --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -59,9 +63,9 @@ button {
 }
 
 @keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-  70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(247, 137, 31, 0.55); }
+  70% { box-shadow: 0 0 0 12px rgba(247, 137, 31, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(247, 137, 31, 0); }
 }
 
 @keyframes slide-up {

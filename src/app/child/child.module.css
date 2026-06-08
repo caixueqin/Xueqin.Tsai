@@ -24,7 +24,7 @@
   margin: 0 auto;
   height: 60px;
   background-color: var(--surface-color);
-  border-top: 1px solid var(--border-color);
+  border-top: 3px solid var(--gem-yellow);
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -41,7 +41,7 @@
 }
 
 .navItem:hover {
-  color: var(--text-main);
+  color: var(--gem-pink);
 }
 
 /* Page specific styles */
@@ -54,10 +54,10 @@
   display: flex;
   justify-content: center;
   gap: 12px;
-  background-color: var(--bg-color);
+  background-color: var(--gem-green-light);
   padding: 10px;
   border-radius: 16px;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(18, 186, 170, 0.35);
   flex-wrap: wrap;
 }
 
@@ -74,8 +74,8 @@
 }
 
 .minerStatus.me {
-  border: 1px solid var(--gem-green);
-  background-color: #f0fdf4;
+  border: 1px solid var(--gem-orange);
+  background-color: #fff1d7;
 }
 
 .minerName {
@@ -90,8 +90,8 @@
 .minerCount {
   font-size: 12px;
   font-weight: 700;
-  color: var(--gem-green);
-  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--gem-orange);
+  background-color: rgba(251, 223, 84, 0.38);
   padding: 2px 6px;
   border-radius: 10px;
 }
@@ -110,10 +110,11 @@
 }
 
 .sectionBox {
-  background-color: var(--bg-color);
+  background-color: #fffdf2;
   border-radius: var(--border-radius);
   padding: 20px;
   border: 1px solid var(--border-color);
+  border-top: 4px solid var(--gem-blue);
   margin-bottom: 20px;
 }
 
@@ -174,7 +175,7 @@
 
 .saveBtn {
   width: 100%;
-  background-color: var(--text-main);
+  background-color: var(--gem-pink);
   color: white;
   font-weight: 700;
   font-size: 16px;
@@ -205,40 +206,84 @@
   min-height: 36px;
 }
 
-.syncDot {
+.smartCompare {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+}
+
+.smartCompareLabel {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.smartCompareOptions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.smartCompareOptions button {
+  position: relative;
+  min-width: 42px;
+  height: 28px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--surface-color);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.smartCompareOptions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.smartCompareOptions button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.smartCompareOptions .smartCompareSelected {
+  background: var(--gem-orange);
+  border-color: var(--gem-orange);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.syncBadge {
   position: absolute;
-  right: -3px;
-  bottom: -3px;
-  width: 9px;
-  height: 9px;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   border: 2px solid var(--surface-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
 }
 
 .syncing {
-  background-color: #f59e0b;
+  background-color: var(--gem-yellow);
+  color: var(--text-main);
 }
 
 .synced {
   background-color: var(--gem-green);
 }
 
-.failed {
-  background-color: #ef4444;
-}
-
 .syncSpin {
-  animation: syncSpin 0.8s linear infinite;
-}
-
-.retryBtn {
-  border: 0;
-  background: transparent;
-  color: #ef4444;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 0;
-  cursor: pointer;
+  animation: syncSpin 1.6s linear infinite;
 }
 
 @keyframes syncSpin {
