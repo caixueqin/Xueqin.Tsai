@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { hashPin } from '@/lib/pin'
 import fs from 'fs'
 import path from 'path'
 
@@ -65,13 +66,27 @@ export async function GET(request: Request) {
 
     const childrenNames = ['Yao', 'Sean', 'Shirley', 'Jeff']
     const childrenPins = ['1111', '1234', '1234', '1234']
+    const parentByChild: Record<string, string> = {
+      Jeff: 'JeffMom',
+      Shirley: 'ShirleyMom',
+      Yao: 'YaoMom',
+      Sean: 'SeanMom',
+    }
     
     for (let i = 0; i < childrenNames.length; i++) {
       const user = await prisma.user.create({
         data: { name: childrenNames[i], role: 'child', pin: childrenPins[i] }
       })
+      const parent = await prisma.user.create({
+        data: {
+          name: parentByChild[childrenNames[i]],
+          role: 'parent',
+          password: hashPin('1234'),
+          mustChangePin: true,
+        }
+      })
       await prisma.child.create({
-        data: { userId: user.id, displayName: childrenNames[i] }
+        data: { userId: user.id, parentUserId: parent.id, displayName: childrenNames[i] }
       })
     }
 

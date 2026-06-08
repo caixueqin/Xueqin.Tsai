@@ -10,6 +10,19 @@ export async function undoCheckmarkAction(checkmarkId: string) {
     return { error: 'Unauthorized' }
   }
 
+  const checkmark = await prisma.checkmark.findUnique({
+    where: { id: checkmarkId },
+    include: { child: true },
+  })
+
+  if (!checkmark) {
+    return { error: 'Checkmark not found' }
+  }
+
+  if (session.user.role !== 'admin' && checkmark.child.parentUserId !== session.user.id) {
+    return { error: 'Unauthorized' }
+  }
+
   await prisma.checkmark.update({
     where: { id: checkmarkId },
     data: { 

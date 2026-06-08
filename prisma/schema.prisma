@@ -16,9 +16,11 @@ model User {
   pin        String?  // For children
   password   String?  // For parents/admin
   role       String   // "admin", "child", "parent"
+  mustChangePin Boolean @default(false)
   createdAt  DateTime @default(now())
 
   child      Child?
+  parentForChildren Child[] @relation("ParentForChild")
   checkmarks Checkmark[] @relation("CreatedBy")
   undoneMarks Checkmark[] @relation("UndoneBy")
 }
@@ -27,6 +29,8 @@ model Child {
   id                 String   @id @default(cuid())
   userId             String   @unique
   user               User     @relation(fields: [userId], references: [id])
+  parentUserId       String?  @unique
+  parentUser         User?    @relation("ParentForChild", fields: [parentUserId], references: [id])
   displayName        String
   currentSectionId   String?
   createdAt          DateTime @default(now())

@@ -8,6 +8,7 @@ export default async function ParentPage() {
   if (!session || (session.user.role !== 'parent' && session.user.role !== 'admin')) redirect('/login')
 
   const children = await prisma.child.findMany({
+    where: session.user.role === 'admin' ? undefined : { parentUserId: session.user.id },
     orderBy: { displayName: 'asc' }
   })
 
@@ -16,7 +17,8 @@ export default async function ParentPage() {
 
   const recentMarks = await prisma.checkmark.findMany({
     where: {
-      checkedAt: { gte: today }
+      checkedAt: { gte: today },
+      childId: { in: children.map(child => child.id) }
     },
     include: {
       checkItem: {

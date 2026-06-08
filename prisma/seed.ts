@@ -1,8 +1,15 @@
 import { PrismaClient } from '@prisma/client'
+import { randomBytes, scryptSync } from 'node:crypto'
 import fs from 'fs'
 import path from 'path'
 
 const prisma = new PrismaClient()
+
+function hashPin(pin: string) {
+  const salt = randomBytes(16).toString('hex')
+  const hash = scryptSync(pin, salt, 32).toString('hex')
+  return `scrypt$${salt}$${hash}`
+}
 
 // Helper to parse problem ranges like "Problem 1.1 - 1.6" or "约 Problem 5.1 - 5.7"
 function parseProblemRange(text: string): { start: number, end: number, prefix: string } | null {
@@ -36,13 +43,27 @@ async function main() {
 
   const childrenNames = ['Yao', 'Sean', 'Shirley', 'Jeff']
   const childrenPins = ['1111', '1234', '1234', '1234']
+  const parentByChild: Record<string, string> = {
+    Jeff: 'JeffMom',
+    Shirley: 'ShirleyMom',
+    Yao: 'YaoMom',
+    Sean: 'SeanMom',
+  }
   
   for (let i = 0; i < childrenNames.length; i++) {
     const user = await prisma.user.create({
       data: { name: childrenNames[i], role: 'child', pin: childrenPins[i] }
     })
+    const parent = await prisma.user.create({
+      data: {
+        name: parentByChild[childrenNames[i]],
+        role: 'parent',
+        password: hashPin('1234'),
+        mustChangePin: true,
+      }
+    })
     await prisma.child.create({
-      data: { userId: user.id, displayName: childrenNames[i] }
+      data: { userId: user.id, parentUserId: parent.id, displayName: childrenNames[i] }
     })
   }
 

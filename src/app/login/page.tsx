@@ -7,6 +7,7 @@ import styles from './login.module.css'
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [requiresNewPin, setRequiresNewPin] = useState(false)
+  const [requiresNewName, setRequiresNewName] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -16,6 +17,7 @@ export default function LoginPage() {
     const res = await loginAction(formData)
     if (res?.requiresNewPin) {
       setRequiresNewPin(true)
+      setRequiresNewName(Boolean(res.requiresNewName))
       setMessage(res.message || 'Please set a new PIN.')
       return
     }
@@ -41,10 +43,18 @@ export default function LoginPage() {
           </div>
 
           {requiresNewPin && (
-            <div className={styles.inputGroup}>
-              <label htmlFor="newPin">New Secret PIN</label>
-              <input type="password" id="newPin" name="newPin" required placeholder="****" autoFocus />
-            </div>
+            <>
+              {requiresNewName && (
+                <div className={styles.inputGroup}>
+                  <label htmlFor="newName">New Login Name</label>
+                  <input type="text" id="newName" name="newName" placeholder="e.g. Mom" autoFocus />
+                </div>
+              )}
+              <div className={styles.inputGroup}>
+                <label htmlFor="newPin">New Secret PIN</label>
+                <input type="password" id="newPin" name="newPin" required placeholder="****" autoFocus={!requiresNewName} />
+              </div>
+            </>
           )}
 
           {message && !error && <p className={styles.success}>{message}</p>}

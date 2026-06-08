@@ -2,10 +2,11 @@
 
 import { prisma } from '@/lib/prisma'
 import { loginUser } from '@/lib/auth'
+import { hashPin, verifyPin } from '@/lib/pin'
 import { redirect } from 'next/navigation'
 
 export async function loginAction(formData: FormData) {
-  const name = formData.get('name') as string
+  const name = ((formData.get('name') as string) || '').trim()
   const pinOrPassword = formData.get('pin') as string
 
   if (!name || !pinOrPassword) {
@@ -13,7 +14,7 @@ export async function loginAction(formData: FormData) {
   }
 
   // Find user
-  const user = await prisma.user.findFirst({
+  let user = await prisma.user.findFirst({
     where: { name }
   })
 
@@ -23,7 +24,7 @@ export async function loginAction(formData: FormData) {
 
   // Simple check for child or adult
   if (user.role === 'child') {
-    if (user.pin !== pinOrPassword) {
+    if (!verifyPin(pinOrPassword, user.pin)) {
       return { error: 'Incorrect PIN.' }
     }
     
@@ -36,13 +37,44 @@ export async function loginAction(formData: FormData) {
         // Update the PIN
         await prisma.user.update({
           where: { id: user.id },
-          data: { pin: newPin }
+          data: { pin: hashPin(newPin) }
         })
       }
     }
   } else {
-    if (user.password !== pinOrPassword) {
+    if (!verifyPin(pinOrPassword, user.password)) {
       return { error: 'Incorrect Password.' }
+    }
+
+    if (user.role === 'parent' && (user.mustChangePin || user.password === '1234')) {
+      const newPin = formData.get('newPin') as string
+      const newName = ((formData.get('newName') as string) || '').trim()
+
+      if (!newPin) {
+        return {
+          requiresNewPin: true,
+          requiresNewName: true,
+          message: 'Welcome! Please set your login name and a new PIN.',
+        }
+      }
+
+      if (newName && newName !== user.name) {
+        const existing = await prisma.user.findFirst({
+          where: { name: newName, id: { not: user.id } }
+        })
+        if (existing) {
+          return { error: 'That login name is already taken.' }
+        }
+      }
+
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          name: newName || user.name,
+          password: hashPin(newPin),
+          mustChangePin: false,
+        }
+      })
     }
   }
 
