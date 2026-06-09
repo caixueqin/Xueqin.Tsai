@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import styles from './child.module.css'
+import ChildStatusBar from './ChildStatusBar'
 
 export default async function ChildLayout({
   children,
@@ -27,23 +28,18 @@ export default async function ChildLayout({
       }
     }
   })
-
   return (
     <div className={styles.layout}>
       <header className={styles.header}>
-        <div className={styles.statusDashboard}>
-          {allChildren.map(child => {
-            const isWorking = child.checkmarks.length > 0
-            const isMe = child.userId === session.user.id
-            return (
-              <div key={child.id} className={`${styles.minerStatus} ${isMe ? styles.me : ''}`}>
-                <span className={styles.minerName}>{child.displayName}</span>
-                <span className={styles.minerIcon}>{isWorking ? '⛏️' : '💤'}</span>
-                {isWorking && <span className={styles.minerCount}>{child.checkmarks.length}</span>}
-              </div>
-            )
-          })}
-        </div>
+        <ChildStatusBar
+          currentUserId={session.user.id}
+          childrenList={allChildren.map(child => ({
+            id: child.id,
+            userId: child.userId,
+            displayName: child.displayName,
+            todayCount: child.checkmarks.length,
+          }))}
+        />
       </header>
 
       <main className={styles.mainContent}>
@@ -54,6 +50,7 @@ export default async function ChildLayout({
         <Link href="/child" className={styles.navItem}>Today</Link>
         <Link href="/child/map" className={styles.navItem}>Map</Link>
         <Link href="/child/guild" className={styles.navItem}>Guild</Link>
+        <Link href="/child/treasure" className={styles.navItem}>Treasure</Link>
       </nav>
     </div>
   )

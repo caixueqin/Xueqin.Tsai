@@ -6,11 +6,12 @@
   margin: 0 auto;
   background-color: var(--surface-color);
   box-shadow: var(--shadow-sm);
+  --child-status-offset: 58px;
 }
 
 .mainContent {
   flex: 1;
-  padding: 24px 20px;
+  padding: 118px 20px 24px;
   overflow-y: auto;
   padding-bottom: 80px; /* space for bottom nav */
 }
@@ -35,8 +36,9 @@
   flex: 1;
   text-align: center;
   font-weight: 600;
+  font-size: 13px;
   color: var(--text-muted);
-  padding: 10px;
+  padding: 10px 4px;
   transition: color 0.2s ease;
 }
 
@@ -46,27 +48,59 @@
 
 /* Page specific styles */
 .header {
-  padding: 16px 20px 0;
-  margin-bottom: 12px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  z-index: 200;
+  height: 58px;
+  padding: 0 12px;
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
 }
 
 .statusDashboard {
+  width: 100%;
   display: flex;
-  justify-content: center;
-  gap: 12px;
-  background-color: var(--gem-green-light);
-  padding: 10px;
-  border-radius: 16px;
-  border: 1px solid rgba(18, 186, 170, 0.35);
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  flex-wrap: nowrap;
+}
+
+.statusMe {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  max-width: 42%;
+}
+
+.statusOthers {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 
 .minerStatus {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 14px;
-  padding: 4px 8px;
+  min-width: 0;
+  font-size: 13px;
+  padding: 4px 7px;
   border-radius: 8px;
   background-color: var(--surface-color);
   box-shadow: var(--shadow-sm);
@@ -81,9 +115,13 @@
 .minerName {
   font-weight: 600;
   color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .minerIcon {
+  flex-shrink: 0;
   font-size: 14px;
 }
 
@@ -94,6 +132,7 @@
   background-color: rgba(251, 223, 84, 0.38);
   padding: 2px 6px;
   border-radius: 10px;
+  white-space: nowrap;
 }
 
 .greeting {
@@ -122,6 +161,163 @@
   font-size: 18px;
   margin: 0 0 16px 0;
   font-weight: 600;
+}
+
+.treasureHero {
+  background: linear-gradient(135deg, var(--gem-yellow), var(--gem-orange));
+  border-radius: var(--border-radius);
+  padding: 22px;
+  margin-bottom: 20px;
+  color: var(--text-main);
+  box-shadow: var(--shadow-md);
+}
+
+.treasureScoreRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.treasureLabel {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: rgba(47, 47, 56, 0.7);
+}
+
+.treasurePoints {
+  font-family: var(--font-coiny);
+  font-size: 48px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.treasureBadge {
+  background: var(--surface-color);
+  border: 2px solid rgba(47, 47, 56, 0.12);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.energyBar {
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  overflow: hidden;
+}
+
+.energyFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gem-green), var(--gem-blue), var(--gem-pink));
+  transition: width 0.4s ease;
+}
+
+.energyMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.treasurePreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.treasurePreviewGrid div {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.treasurePreviewGrid strong,
+.treasurePreviewGrid span {
+  display: block;
+}
+
+.treasurePreviewGrid span {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.prizePoolGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.prizePoolTier {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.prizePoolTier h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: var(--text-main);
+}
+
+.prizePoolTier ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prizePoolTier li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--gem-green-light);
+}
+
+.prizePoolTier small,
+.emptyPrize {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.drawList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drawItem {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.drawItem strong,
+.drawItem span {
+  display: block;
+}
+
+.drawItem span {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
 .checkList {
@@ -259,6 +455,95 @@
   box-shadow: var(--shadow-sm);
 }
 
+.alcumusSlider {
+  --alcumus-color: var(--border-color);
+  width: 132px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.alcumusTrackWrap {
+  position: relative;
+  width: 100%;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.alcumusTrackWrap::before,
+.alcumusTrackWrap::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  z-index: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background: var(--surface-color);
+  border: 2px solid var(--border-color);
+  pointer-events: none;
+}
+
+.alcumusTrackWrap::before {
+  left: calc(50% - 4px);
+}
+
+.alcumusTrackWrap::after {
+  right: 0;
+}
+
+.alcumusTrackWrap input {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: grab;
+}
+
+.alcumusTrackWrap input:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.alcumusTrackWrap input::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--border-color), var(--gem-green), var(--gem-blue));
+  border: 2px solid rgba(64, 63, 76, 0.08);
+}
+
+.alcumusTrackWrap input::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -11px;
+  border-radius: 50%;
+  background: var(--alcumus-color);
+  border: 4px solid var(--surface-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.alcumusTrackWrap input::-moz-range-track {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--border-color), var(--gem-green), var(--gem-blue));
+  border: 2px solid rgba(64, 63, 76, 0.08);
+}
+
+.alcumusTrackWrap input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--alcumus-color);
+  border: 4px solid var(--surface-color);
+  box-shadow: var(--shadow-sm);
+}
+
 .syncBadge {
   position: absolute;
   top: -4px;
@@ -292,5 +577,149 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.drawModalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(47, 47, 56, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.drawModal {
+  width: min(360px, 100%);
+  background: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: 22px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.drawModal h2 {
+  margin: 0 0 14px;
+  font-family: var(--font-coiny);
+  font-size: 26px;
+  font-weight: 400;
+}
+
+.drawRevealAnimation {
+  position: relative;
+  height: 150px;
+  margin: 8px 0 12px;
+  border-radius: 16px;
+  background: radial-gradient(circle at 50% 70%, rgba(251, 223, 84, 0.55), rgba(18, 186, 170, 0.16) 48%, rgba(55, 126, 192, 0.08));
+  overflow: hidden;
+}
+
+.drawRevealAnimation::before {
+  content: "";
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(251, 223, 84, 0), rgba(251, 223, 84, 0.75), rgba(251, 223, 84, 0));
+  animation: treasureGlow 1.6s linear infinite;
+}
+
+.drawPickaxe {
+  position: absolute;
+  left: 44px;
+  top: 32px;
+  z-index: 2;
+  font-size: 44px;
+  transform-origin: 70% 80%;
+  animation: pickaxeSwing 0.72s ease-in-out infinite;
+}
+
+.drawChest {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  z-index: 3;
+  width: 76px;
+  height: 62px;
+  border-radius: 12px;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--gem-orange), var(--gem-yellow));
+  border: 4px solid var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  font-size: 30px;
+  font-weight: 900;
+  box-shadow: var(--shadow-md);
+  animation: chestBounce 0.9s ease-in-out infinite;
+}
+
+.drawRevealHint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.drawModalPrize {
+  background: linear-gradient(135deg, var(--gem-yellow), var(--gem-orange));
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.drawModalPrize span,
+.drawModalPrize strong {
+  display: block;
+}
+
+.drawModalPrize span {
+  color: rgba(47, 47, 56, 0.72);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.drawModalPrize strong {
+  margin-top: 4px;
+  font-size: 20px;
+}
+
+.drawModal button {
+  width: 100%;
+  background: var(--gem-blue);
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+@keyframes pickaxeSwing {
+  0%, 100% {
+    transform: rotate(-22deg);
+  }
+  50% {
+    transform: rotate(24deg);
+  }
+}
+
+@keyframes chestBounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-8px) scale(1.04);
+  }
+}
+
+@keyframes treasureGlow {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
   }
 }

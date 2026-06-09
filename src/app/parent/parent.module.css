@@ -1,0 +1,27 @@
+.checkboxInput {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 2px solid #d1d5db;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.checkboxInput:checked {
+  border-color: #377ec0;
+  background: #e2f0ff;
+}
+
+.checkboxIcon {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  color: #377ec0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.checkboxInput:checked + .checkboxIcon {
+  opacity: 1;
+}

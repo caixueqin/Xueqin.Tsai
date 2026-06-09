@@ -36,6 +36,10 @@ model Child {
   createdAt          DateTime @default(now())
 
   checkmarks         Checkmark[]
+  prizes             Prize[]
+  prizeDraws         PrizeDraw[]
+  pointLedger        PointLedger[]
+  activityLogs       ActivityLog[]
 }
 
 model Chapter {
@@ -93,4 +97,55 @@ model Checkmark {
   undoneByUserId   String?
   undoneByUser     User?    @relation("UndoneBy", fields: [undoneByUserId], references: [id])
   undoneAt         DateTime?
+}
+
+model Prize {
+  id           String   @id @default(cuid())
+  childId      String
+  child        Child    @relation(fields: [childId], references: [id])
+  title        String
+  tier         String   // "special", "first", "second", "third"
+  isRepeatable Boolean  @default(false)
+  status       String   @default("active") // "active", "inactive", "deleted"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model PrizeDraw {
+  id              String   @id @default(cuid())
+  childId         String
+  child           Child    @relation(fields: [childId], references: [id])
+  prizeId         String?
+  prizeTitle      String?
+  tier            String   // "special", "first", "second", "third"
+  status          String   @default("pending") // "pending", "approved", "revoked"
+  pointsSpent     Int      @default(100)
+  createdAt       DateTime @default(now())
+  approvedAt      DateTime?
+  revokedAt       DateTime?
+  revokedReason   String?
+}
+
+model PointLedger {
+  id          String   @id @default(cuid())
+  childId     String
+  child       Child    @relation(fields: [childId], references: [id])
+  points      Int
+  type        String   // "checkmark_award", "checkmark_reversal", "draw_spend", "draw_refund"
+  checkmarkId String?
+  drawId      String?
+  note        String?
+  createdAt   DateTime @default(now())
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  childId     String
+  child       Child    @relation(fields: [childId], references: [id])
+  actorUserId String?
+  audience    String   @default("both") // "child", "parent", "both"
+  eventType   String
+  message     String
+  metadata    String?
+  createdAt   DateTime @default(now())
 }

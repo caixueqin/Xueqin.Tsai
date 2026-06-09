@@ -32,5 +32,26 @@ export default async function ParentPage() {
     orderBy: { checkedAt: 'desc' }
   })
 
-  return <ParentClient childrenList={children} recentMarks={recentMarks} />
+  const prizes = await prisma.prize.findMany({
+    where: {
+      childId: { in: children.map(child => child.id) },
+      status: { not: 'deleted' },
+    },
+    orderBy: [
+      { childId: 'asc' },
+      { tier: 'asc' },
+      { createdAt: 'desc' },
+    ],
+  })
+
+  const activityLogs = await prisma.activityLog.findMany({
+    where: {
+      childId: { in: children.map(child => child.id) },
+      audience: { in: ['parent', 'both'] },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 80,
+  })
+
+  return <ParentClient childrenList={children} recentMarks={recentMarks} prizes={prizes} activityLogs={activityLogs} />
 }

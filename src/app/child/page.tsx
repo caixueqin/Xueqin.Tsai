@@ -66,12 +66,18 @@ export default async function ChildPage() {
   today.setHours(0, 0, 0, 0)
   const hasMarkedToday = allMarks.some(m => new Date(m.checkedAt) >= today)
 
+  const pointBalance = await prisma.pointLedger.aggregate({
+    where: { childId: child.id },
+    _sum: { points: true },
+  })
+
   return (
     <RoadmapClient 
       child={child} 
       chapter={chapter} 
       allMarks={allMarks} 
       hasMarkedToday={hasMarkedToday}
+      initialPoints={pointBalance._sum.points || 0}
     />
   )
 }
