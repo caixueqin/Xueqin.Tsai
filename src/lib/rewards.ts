@@ -8,10 +8,11 @@ const TIER_WEIGHTS = [
 ]
 
 export function getPointValue(itemType: string) {
-  if (itemType === 'alcumus_blue') return 90
-  if (itemType === 'alcumus_green') return 50
+  if (itemType === 'alcumus_blue') return 110
+  if (itemType === 'alcumus_green') return 60
   if (itemType === 'review_q' || itemType === 'challenge') return 20
-  if (itemType === 'try' || itemType === 'aops_way') return 5
+  if (itemType === 'try') return 3
+  if (itemType === 'aops_way') return 5
   return 5
 }
 
