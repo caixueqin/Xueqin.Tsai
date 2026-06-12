@@ -319,23 +319,21 @@ export default function RoadmapClient({
     <>
       <div style={{ 
         position: 'fixed', 
-        top: 'var(--child-status-offset)', 
+        top: '13px',
         left: 0,
         right: 0,
-        width: '100%',
         maxWidth: '600px',
         margin: '0 auto',
-        zIndex: 150, 
-        backgroundColor: 'var(--surface-color)', 
-        padding: '8px 12px 10px', 
-        borderBottom: '1px solid var(--border-color)', 
+        padding: '0 146px 0 76px',
+        zIndex: 230,
+        pointerEvents: 'none',
       }}>
         <div style={{ width: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px', fontSize: '12px', fontWeight: 800, color: 'var(--text-muted)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', fontSize: '10px', fontWeight: 900, color: 'var(--text-main)', textShadow: '0 1px 0 rgba(255,255,255,0.45)' }}>
             <span>{visiblePoints} pts</span>
             <span>{pointsToNextDraw} to treasure</span>
           </div>
-          <div style={{ height: '10px', borderRadius: '999px', background: 'rgba(255,255,255,0.72)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+          <div style={{ height: '12px', borderRadius: '999px', background: 'rgba(47,47,56,0.12)', border: '1px solid rgba(47,47,56,0.08)', overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${energyPercent}%`, borderRadius: '999px', background: 'linear-gradient(90deg, var(--gem-green), var(--gem-blue), var(--gem-pink))', transition: 'width 0.2s ease' }} />
           </div>
         </div>

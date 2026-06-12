@@ -19,11 +19,17 @@ export default async function ChildLayout({
   today.setHours(0, 0, 0, 0)
 
   const allChildren = await prisma.child.findMany({
+    orderBy: { displayName: 'asc' },
     include: {
       checkmarks: {
         where: {
           status: 'active',
           checkedAt: { gte: today }
+        }
+      },
+      prizeDraws: {
+        where: {
+          createdAt: { gte: today }
         }
       }
     }
@@ -37,7 +43,9 @@ export default async function ChildLayout({
             id: child.id,
             userId: child.userId,
             displayName: child.displayName,
+            avatarTheme: child.avatarTheme,
             todayCount: child.checkmarks.length,
+            foundTreasureToday: child.prizeDraws.length > 0,
           }))}
         />
       </header>

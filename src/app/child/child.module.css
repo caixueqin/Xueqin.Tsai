@@ -6,12 +6,12 @@
   margin: 0 auto;
   background-color: var(--surface-color);
   box-shadow: var(--shadow-sm);
-  --child-status-offset: 58px;
+  --child-status-offset: 72px;
 }
 
 .mainContent {
   flex: 1;
-  padding: 118px 20px 24px;
+  padding: 88px 20px 24px;
   overflow-y: auto;
   padding-bottom: 80px; /* space for bottom nav */
 }
@@ -55,20 +55,21 @@
   max-width: 600px;
   margin: 0 auto;
   z-index: 200;
-  height: 58px;
-  padding: 0 12px;
-  background-color: var(--surface-color);
-  border-bottom: 1px solid var(--border-color);
+  height: 72px;
+  padding: 8px 12px 6px;
+  background: linear-gradient(90deg, rgba(55, 126, 192, 0.18), rgba(18, 186, 170, 0.14), rgba(247, 137, 31, 0.16));
+  border-bottom: 1px solid rgba(47, 47, 56, 0.08);
   display: flex;
   align-items: center;
+  backdrop-filter: blur(10px);
 }
 
 .statusDashboard {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-end;
+  gap: 8px;
   background-color: transparent;
   padding: 0;
   border-radius: 0;
@@ -79,60 +80,120 @@
 .statusMe {
   display: flex;
   align-items: center;
-  flex: 0 0 auto;
-  max-width: 42%;
+  flex: 0 0 58px;
+  max-width: 58px;
+}
+
+.statusEnergySpace {
+  flex: 1 1 auto;
+  min-width: 96px;
 }
 
 .statusOthers {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 6px;
+  gap: 0;
   min-width: 0;
   flex: 1 1 auto;
   flex-wrap: nowrap;
-  overflow: hidden;
+  overflow: visible;
+  padding-right: 2px;
+  flex: 0 0 132px;
 }
 
 .minerStatus {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 4px;
-  min-width: 0;
-  font-size: 13px;
-  padding: 4px 7px;
-  border-radius: 8px;
-  background-color: var(--surface-color);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 999px;
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  transition: transform 0.18s ease, z-index 0.18s ease;
+  overflow: visible;
+  z-index: 1;
 }
 
 .minerStatus.me {
-  border: 1px solid var(--gem-orange);
-  background-color: #fff1d7;
+  width: 50px;
+  height: 50px;
+  flex-basis: 50px;
+  border: none;
+  background-color: transparent;
+  transform: translateY(3px);
 }
 
-.minerName {
-  font-weight: 600;
-  color: var(--text-main);
+.statusOthers .minerStatus {
+  margin-left: -8px;
+}
+
+.minerStatus:hover {
+  transform: translateY(-4px) scale(1.2);
+  z-index: 5;
+}
+
+.minerStatus.me:hover {
+  transform: translateY(0) scale(1.08);
+}
+
+.minerStatus::after {
+  content: none;
+}
+
+.minerStatus:hover::after {
+  opacity: 0;
+}
+
+.minerLabel {
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  max-width: 66px;
+  color: #fff;
+  background: rgba(47, 47, 56, 0.82);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  border-radius: 999px;
+  padding: 3px 7px;
+  box-shadow: 0 2px 6px rgba(47, 47, 56, 0.16);
+  z-index: 2;
 }
 
-.minerIcon {
-  flex-shrink: 0;
-  font-size: 14px;
+.statusOthers .minerLabel {
+  opacity: 0;
+  transform: translateX(-50%) translateY(2px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
 }
 
-.minerCount {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--gem-orange);
-  background-color: rgba(251, 223, 84, 0.38);
-  padding: 2px 6px;
-  border-radius: 10px;
-  white-space: nowrap;
+.statusOthers .minerStatus:hover .minerLabel {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.minerAvatar {
+  width: 100%;
+  height: 112%;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 999px;
+  transform: translateY(5px) scale(1.18);
+}
+
+.minerFallback {
+  font-family: var(--font-coiny);
+  font-size: 20px;
+  color: var(--gem-blue);
 }
 
 .greeting {
@@ -318,6 +379,123 @@
   margin-top: 3px;
   color: var(--text-muted);
   font-size: 12px;
+}
+
+.avatarPicker {
+  background: #fffdf2;
+  border: 1px solid var(--border-color);
+  border-top: 4px solid var(--gem-orange);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.avatarPickerHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.avatarPickerHeader h2 {
+  margin: 0;
+  font-family: var(--font-coiny);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--text-main);
+}
+
+.avatarPickerHeader span {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.avatarThemeGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.avatarThemeOption {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  text-align: left;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid color-mix(in srgb, var(--avatar-theme-color) 42%, #ffffff);
+  background: color-mix(in srgb, var(--avatar-theme-color) 12%, #ffffff);
+  cursor: pointer;
+  transition: transform 0.16s ease, opacity 0.16s ease;
+}
+
+.avatarThemeOption:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.avatarThemeOption:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.avatarThemeTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text-main);
+  font-weight: 900;
+}
+
+.avatarThemeTitle span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.avatarThemeTitle span::before {
+  content: "";
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: var(--avatar-theme-color);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 0 1px rgba(47, 47, 56, 0.1);
+}
+
+.avatarThemeTitle small {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.avatarPreviewRow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.avatarPreviewRow img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(47, 47, 56, 0.08);
+}
+
+.avatarPickerError {
+  color: var(--gem-pink);
+  font-size: 13px;
+  font-weight: 800;
+  margin: 10px 0 0;
 }
 
 .checkList {

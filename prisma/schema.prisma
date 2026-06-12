@@ -32,6 +32,7 @@ model Child {
   parentUserId       String?  @unique
   parentUser         User?    @relation("ParentForChild", fields: [parentUserId], references: [id])
   displayName        String
+  avatarTheme        String?  @unique
   currentSectionId   String?
   createdAt          DateTime @default(now())
 

@@ -22,6 +22,51 @@ const PRIZE_TIERS = [
 ]
 const PARENT_TABS = ['Today', 'Prize Pool', 'Report'] as const
 type ParentTab = typeof PARENT_TABS[number]
+type TodayProblemGroup = {
+  key: string
+  problemNumber: string | null
+  problemText: string | null
+  sectionLabel: string
+  marks: any[]
+}
+
+const WHO_WINS_STYLES: Record<string, { label: string, background: string, border: string, color: string }> = {
+  aops_smarter: { label: 'AoPS wins', background: '#dcfce7', border: '#86efac', color: '#166534' },
+  tie: { label: 'Tie', background: '#fef9c3', border: '#fde047', color: '#854d0e' },
+  me: { label: 'Me wins', background: '#ffedd5', border: '#fdba74', color: '#c2410c' },
+}
+
+function getProblemNumber(mark: any) {
+  const source = `${mark.checkItem.itemGroup || ''} ${mark.checkItem.labelEn || ''}`
+  return source.match(/(\d+\.\d+)/)?.[1] || null
+}
+
+function getSectionLabel(mark: any) {
+  return `${mark.checkItem.section.chapter.number}.${mark.checkItem.section.number} ${mark.checkItem.section.titleEn}`
+}
+
+function buildTodayGroups(marks: any[], problemTexts: Record<string, string>) {
+  const groups = new Map<string, TodayProblemGroup>()
+
+  marks.forEach(mark => {
+    const problemNumber = getProblemNumber(mark)
+    const key = problemNumber ? `problem-${problemNumber}` : mark.id
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        key,
+        problemNumber,
+        problemText: problemNumber ? problemTexts[problemNumber] || null : null,
+        sectionLabel: getSectionLabel(mark),
+        marks: [],
+      })
+    }
+
+    groups.get(key)?.marks.push(mark)
+  })
+
+  return Array.from(groups.values())
+}
 
 function formatTime(value: string | Date) {
   return new Date(value).toLocaleTimeString('en-US', {
@@ -100,11 +145,11 @@ function PrizeFields({ prize }: { prize?: any }) {
         </span>
         Repeatable
       </label>
-    </>
-  )
+  </>
+)
 }
 
-export default function ParentClient({ childrenList, recentMarks, prizes, activityLogs }: { childrenList: any[], recentMarks: any[], prizes: any[], activityLogs: any[] }) {
+export default function ParentClient({ childrenList, recentMarks, prizes, activityLogs, problemTexts }: { childrenList: any[], recentMarks: any[], prizes: any[], activityLogs: any[], problemTexts: Record<string, string> }) {
   const [isPending, startTransition] = useTransition()
   const [editingPrizeId, setEditingPrizeId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<ParentTab>('Today')
@@ -161,6 +206,7 @@ export default function ParentClient({ childrenList, recentMarks, prizes, activi
         const activeMarks = childMarks.filter(m => m.status === 'active')
         const pendingActiveMarks = activeMarks.filter(m => m.parentReviewStatus !== 'ok')
         const undoneMarks = childMarks.filter(m => m.status === 'undone')
+        const activeGroups = buildTodayGroups(activeMarks, problemTexts)
         const childPrizes = prizes.filter(prize => prize.childId === child.id)
         const childLogs = activityLogs.filter(log => log.childId === child.id)
 
@@ -201,36 +247,83 @@ export default function ParentClient({ childrenList, recentMarks, prizes, activi
                       </button>
                     </div>
                   )}
-                  {activeMarks.map(mark => (
-                    <div key={mark.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
-                      <div>
-                        <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                          {mark.checkItem.section.chapter.number}.{mark.checkItem.section.number} {mark.checkItem.section.titleEn}
+                  {activeGroups.map(group => {
+                    const tryMark = group.marks.find(mark => mark.checkItem.itemType === 'try')
+                    const compareMark = group.marks.find(mark => mark.checkItem.itemType === 'aops_way')
+                    const otherMarks = group.marks.filter(mark => mark.checkItem.itemType !== 'try' && mark.checkItem.itemType !== 'aops_way')
+                    const compareStyle = compareMark?.parentNote ? WHO_WINS_STYLES[compareMark.parentNote] : null
+
+                    return (
+                      <div key={group.key} style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px', border: '1px solid #eef0f3' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'flex-start' }}>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                              {group.problemNumber ? `Example ${group.problemNumber}` : group.sectionLabel}
+                            </div>
+                            {group.problemText ? (
+                              <div style={{ fontWeight: 700, color: '#374151', marginTop: '5px', lineHeight: 1.45 }}>
+                                {group.problemText}
+                              </div>
+                            ) : (
+                              <div style={{ fontWeight: 600, color: '#374151', marginTop: '5px' }}>
+                                {group.marks.map(mark => mark.checkItem.labelEn).join(' · ')}
+                              </div>
+                            )}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '9px' }}>
+                              {tryMark && (
+                                <span style={{ background: '#dbeafe', border: '1px solid #bfdbfe', color: '#1d4ed8', borderRadius: '999px', padding: '4px 8px', fontSize: '12px', fontWeight: 800 }}>
+                                  Try First
+                                </span>
+                              )}
+                              {compareMark && (
+                                <span style={{
+                                  background: compareStyle?.background || '#f3f4f6',
+                                  border: `1px solid ${compareStyle?.border || '#e5e7eb'}`,
+                                  color: compareStyle?.color || '#6b7280',
+                                  borderRadius: '999px',
+                                  padding: '4px 8px',
+                                  fontSize: '12px',
+                                  fontWeight: 800,
+                                }}>
+                                  Who wins: {compareStyle?.label || 'Not selected'}
+                                </span>
+                              )}
+                              {otherMarks.map(mark => (
+                                <span key={mark.id} style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#c2410c', borderRadius: '999px', padding: '4px 8px', fontSize: '12px', fontWeight: 800 }}>
+                                  {mark.checkItem.labelEn}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#9ca3af', whiteSpace: 'nowrap' }}>
+                            {formatTime(group.marks[0].checkedAt)}
+                          </div>
                         </div>
-                        <div style={{ fontWeight: 600, color: '#374151' }}>✓ {mark.checkItem.labelEn}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', justifyContent: 'flex-end', marginTop: '10px' }}>
+                          {group.marks.map(mark => (
+                            <div key={mark.id} style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                              <span style={{ color: '#9ca3af', fontSize: '11px', fontWeight: 700 }}>{mark.checkItem.labelEn}</span>
+                              <button
+                                onClick={() => handleApprove(mark.id)}
+                                disabled={isPending || mark.parentReviewStatus === 'ok'}
+                                title={mark.parentReviewStatus === 'ok' ? 'Approved' : 'Approve'}
+                                style={{ width: '30px', height: '30px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: mark.parentReviewStatus === 'ok' ? '#d1fae5' : '#ecfeff', color: '#047857', border: '1px solid #d1fae5' }}
+                              >
+                                <CheckCircle2 size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleUndo(mark.id)}
+                                disabled={isPending}
+                                style={{ fontSize: '12px', background: '#fee2e2', color: '#ef4444', padding: '6px 10px', borderRadius: '6px' }}
+                              >
+                                Undo
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <span style={{ fontSize: '12px', color: '#9ca3af' }}>
-                          {formatTime(mark.checkedAt)}
-                        </span>
-                        <button 
-                          onClick={() => handleApprove(mark.id)}
-                          disabled={isPending || mark.parentReviewStatus === 'ok'}
-                          title={mark.parentReviewStatus === 'ok' ? 'Approved' : 'Approve'}
-                          style={{ width: '30px', height: '30px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: mark.parentReviewStatus === 'ok' ? '#d1fae5' : '#ecfeff', color: '#047857', border: '1px solid #d1fae5' }}
-                        >
-                          <CheckCircle2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleUndo(mark.id)} 
-                          disabled={isPending}
-                          style={{ fontSize: '12px', background: '#fee2e2', color: '#ef4444', padding: '6px 12px', borderRadius: '6px' }}
-                        >
-                          Undo
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                   {undoneMarks.map(mark => (
                     <div key={mark.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f3f4f6', padding: '12px', borderRadius: '8px', opacity: 0.6 }}>
                       <div>

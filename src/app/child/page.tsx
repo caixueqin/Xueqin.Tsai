@@ -2,6 +2,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import RoadmapClient from './RoadmapClient'
+import AvatarThemePicker from './AvatarThemePicker'
 
 export default async function ChildPage() {
   const session = await getSession()
@@ -70,14 +71,27 @@ export default async function ChildPage() {
     where: { childId: child.id },
     _sum: { points: true },
   })
+  const usedAvatarThemes = await prisma.child.findMany({
+    where: {
+      avatarTheme: { not: null },
+      id: { not: child.id },
+    },
+    select: { avatarTheme: true },
+  })
 
   return (
-    <RoadmapClient 
-      child={child} 
-      chapter={chapter} 
-      allMarks={allMarks} 
-      hasMarkedToday={hasMarkedToday}
-      initialPoints={pointBalance._sum.points || 0}
-    />
+    <>
+      <AvatarThemePicker
+        currentTheme={child.avatarTheme}
+        usedThemes={usedAvatarThemes.flatMap(item => item.avatarTheme ? [item.avatarTheme] : [])}
+      />
+      <RoadmapClient
+        child={child}
+        chapter={chapter}
+        allMarks={allMarks}
+        hasMarkedToday={hasMarkedToday}
+        initialPoints={pointBalance._sum.points || 0}
+      />
+    </>
   )
 }

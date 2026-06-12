@@ -1,7 +1,20 @@
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
 import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import ParentClient from './ParentClient'
+
+async function loadProblemTexts() {
+  const filePath = path.join(process.cwd(), 'data/# AoPS PreAlgebra 1-6 章节例题内容列表')
+  const content = await readFile(filePath, 'utf8')
+
+  return content.split(/\r?\n/).reduce<Record<string, string>>((acc, line) => {
+    const match = line.trim().match(/^(\d+\.\d+)[:：]\s*(.+)$/)
+    if (match) acc[match[1]] = match[2]
+    return acc
+  }, {})
+}
 
 export default async function ParentPage() {
   const session = await getSession()
@@ -53,5 +66,7 @@ export default async function ParentPage() {
     take: 80,
   })
 
-  return <ParentClient childrenList={children} recentMarks={recentMarks} prizes={prizes} activityLogs={activityLogs} />
+  const problemTexts = await loadProblemTexts()
+
+  return <ParentClient childrenList={children} recentMarks={recentMarks} prizes={prizes} activityLogs={activityLogs} problemTexts={problemTexts} />
 }

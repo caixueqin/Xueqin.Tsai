@@ -4,6 +4,35 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { AVATAR_THEME_KEYS } from '@/lib/avatarThemes'
+
+export async function chooseAvatarThemeAction(theme: string) {
+  const session = await getSession()
+  if (!session || session.user.role !== 'child') return { error: 'Unauthorized' }
+  if (!AVATAR_THEME_KEYS.includes(theme as any)) return { error: 'Invalid theme' }
+
+  const child = await prisma.child.findUnique({ where: { userId: session.user.id } })
+  if (!child) return { error: 'Unauthorized' }
+  if (child.avatarTheme) return { success: true, theme: child.avatarTheme }
+
+  const claimed = await prisma.child.findFirst({
+    where: {
+      avatarTheme: theme,
+      id: { not: child.id },
+    },
+    select: { id: true },
+  })
+  if (claimed) return { error: 'Theme already taken' }
+
+  const updated = await prisma.child.update({
+    where: { id: child.id },
+    data: { avatarTheme: theme },
+    select: { avatarTheme: true },
+  })
+
+  revalidatePath('/child')
+  return { success: true, theme: updated.avatarTheme }
+}
 
 export async function toggleCheckmarkAction(childId: string, checkItemId: string, currentlyChecked: boolean) {
   const session = await getSession()
