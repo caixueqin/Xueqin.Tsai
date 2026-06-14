@@ -226,30 +226,17 @@ function getWeekLabel(weekStart: Date) {
   return `${formatShortDate(weekStart)}-${formatShortDate(weekEnd)}`
 }
 
-function countUniqueProblems(marks: CheckmarkWithItem[]) {
-  const problemKeys = new Set<string>()
-
-  marks.forEach(mark => {
-    problemKeys.add(getProblemNumber(mark) || mark.checkItemId)
-  })
-
-  return problemKeys.size
-}
-
 function buildDayReport(marks: CheckmarkWithItem[]) {
-  const tryCount = countUniqueProblems(marks.filter(mark => mark.checkItem.itemType === 'try'))
-  const compareMarks = marks.filter(mark => mark.checkItem.itemType === 'aops_way')
-  const sameAsAoPS = countUniqueProblems(compareMarks.filter(mark => mark.parentNote === 'tie'))
-  const learnedAoPS = countUniqueProblems(compareMarks.filter(mark => mark.parentNote === 'aops_smarter'))
-  const betterThanAoPS = countUniqueProblems(compareMarks.filter(mark => mark.parentNote === 'me'))
+  const textbookDone = marks.some(mark => mark.checkItem.itemType === 'try' || mark.checkItem.itemType === 'aops_way')
   const alcumusMarks = marks.filter(mark => mark.checkItem.itemType === 'alcumus_green' || mark.checkItem.itemType === 'alcumus_blue')
+  const hasBlueAlcumus = alcumusMarks.some(mark => mark.checkItem.itemType === 'alcumus_blue')
+  const exerciseMarks = marks.filter(mark => mark.checkItem.itemType === 'review_q' || mark.checkItem.itemType === 'challenge')
+  const hasChallenge = exerciseMarks.some(mark => mark.checkItem.itemType === 'challenge')
 
   return {
-    tryCount,
-    sameAsAoPS,
-    learnedAoPS,
-    betterThanAoPS,
-    alcumusMarks,
+    textbookDone,
+    alcumusStatus: alcumusMarks.length === 0 ? null : hasBlueAlcumus ? 'blue' : 'green',
+    exerciseStatus: exerciseMarks.length === 0 ? null : hasChallenge ? 'challenge' : 'review',
   }
 }
 
@@ -677,17 +664,13 @@ export default function ParentClient({ childrenList, recentMarks, prizes, activi
                         <col />
                         <col />
                         <col />
-                        <col />
-                        <col />
                       </colgroup>
                       <thead>
                         <tr>
                           <th><span className={styles.headContent}><span className={`${styles.headDot} ${styles.dotBlue}`} />日期</span></th>
-                          <th><span className={styles.headContent}><span className={`${styles.headDot} ${styles.dotBlue}`} />试做</span></th>
-                          <th><span className={styles.headContent}><span className={`${styles.headDot} ${styles.dotYellow}`} />一致解法</span></th>
-                          <th><span className={styles.headContent}><span className={`${styles.headDot} ${styles.dotTeal}`} />优化解法</span></th>
-                          <th><span className={styles.headContent}><span className={`${styles.headDot} ${styles.dotOrange}`} />超越AoPS</span></th>
-                          <th><span className={styles.headContent}><span className={`${styles.headDot} ${styles.dotRed}`} />Alcumus</span></th>
+                          <th><span className={styles.headContent}><span className={`${styles.headDot} ${styles.dotBlue}`} />看教材</span></th>
+                          <th><span className={styles.headContent}><span className={`${styles.headDot} ${styles.dotTeal}`} />Alcumus</span></th>
+                          <th><span className={styles.headContent}><span className={`${styles.headDot} ${styles.dotOrange}`} />习题</span></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -706,32 +689,9 @@ export default function ParentClient({ childrenList, recentMarks, prizes, activi
                                 <div className={styles.weekdayLabel}>{WEEKDAY_LABELS[index]}</div>
                                 <div className={styles.dateLabel}>{formatShortDate(day)}</div>
                               </td>
-                              <td className={`${styles.metricCell} ${report.tryCount ? styles.metricBlue : styles.metricEmpty}`}>{report.tryCount || '-'}</td>
-                              <td className={`${styles.metricCell} ${report.sameAsAoPS ? styles.metricYellow : styles.metricEmpty}`}>{report.sameAsAoPS || '-'}</td>
-                              <td className={`${styles.metricCell} ${report.learnedAoPS ? styles.metricTeal : styles.metricEmpty}`}>{report.learnedAoPS || '-'}</td>
-                              <td className={`${styles.metricCell} ${report.betterThanAoPS ? styles.metricOrange : styles.metricEmpty}`}>{report.betterThanAoPS || '-'}</td>
-                              <td className={styles.alcumusCell}>
-                                {report.alcumusMarks.length === 0 ? (
-                                  <span className={styles.metricEmpty}>-</span>
-                                ) : (
-                                  <div className={styles.pillGroup}>
-                                    {report.alcumusMarks.map(mark => {
-                                      const isBlue = mark.checkItem.itemType === 'alcumus_blue'
-                                      const sectionNumber = mark.checkItem.section.number
-
-                                      return (
-                                        <span
-                                          key={mark.id}
-                                          title={`${sectionNumber} ${mark.checkItem.section.titleZh || mark.checkItem.section.titleEn}`}
-                                          className={`${styles.alcumusPill} ${isBlue ? styles.pillBlue : styles.pillTeal}`}
-                                        >
-                                          {sectionNumber}
-                                        </span>
-                                      )
-                                    })}
-                                  </div>
-                                )}
-                              </td>
+                              <td className={`${styles.metricCell} ${report.textbookDone ? styles.metricBlue : styles.metricEmpty}`}>{report.textbookDone ? '✓' : '-'}</td>
+                              <td className={`${styles.metricCell} ${report.alcumusStatus === 'blue' ? styles.metricBlue : report.alcumusStatus === 'green' ? styles.metricTeal : styles.metricEmpty}`}>{report.alcumusStatus ? '✓' : '-'}</td>
+                              <td className={`${styles.metricCell} ${report.exerciseStatus === 'challenge' ? styles.metricOrange : report.exerciseStatus === 'review' ? styles.metricYellow : styles.metricEmpty}`}>{report.exerciseStatus ? '✓' : '-'}</td>
                             </tr>
                           )
                         })}
@@ -745,19 +705,29 @@ export default function ParentClient({ childrenList, recentMarks, prizes, activi
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(148px, 1fr))', gap: '10px' }}>
                     <div style={{ background: '#eef7ff', border: `1px solid ${PALETTE.blue}`, borderRadius: UI.radius, padding: '10px 12px' }}>
                       <div style={{ color: PALETTE.blue, fontSize: '12px', fontWeight: 800, marginBottom: '8px' }}>完成项目数</div>
-                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '7px', height: '72px' }}>
-                        {weeklyComparison.map(week => (
-                          <div key={getDateKey(week.weekStart)} title={`${week.label}：${week.completedCount} 项`} style={{ width: '10px', height: `${Math.max(5, (week.completedCount / maxCompleted) * 62)}px`, background: PALETTE.blue, borderRadius: '999px 999px 2px 2px' }} />
-                        ))}
+                      <div style={{ position: 'relative', height: '76px', paddingBottom: '11px' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: '62px', borderBottom: '1px solid #cfe1f3' }}>
+                          {weeklyComparison.map(week => (
+                            <div key={getDateKey(week.weekStart)} data-tooltip={`${week.label}：${week.completedCount} 项`} className={styles.weekBarHit}>
+                              <div style={{ width: '10px', height: `${Math.max(5, (week.completedCount / maxCompleted) * 56)}px`, background: PALETTE.blue, borderRadius: '999px 999px 2px 2px' }} />
+                              <span style={{ position: 'absolute', bottom: '-5px', width: '1px', height: '5px', background: '#cfe1f3' }} />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
                     <div style={{ background: '#eefcf9', border: `1px solid ${PALETTE.teal}`, borderRadius: UI.radius, padding: '10px 12px' }}>
                       <div style={{ color: PALETTE.teal, fontSize: '12px', fontWeight: 800, marginBottom: '8px' }}>打卡天数</div>
-                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '7px', height: '72px' }}>
-                        {weeklyComparison.map(week => (
-                          <div key={getDateKey(week.weekStart)} title={`${week.label}：${week.checkInDays} 天`} style={{ width: '10px', height: `${Math.max(5, (week.checkInDays / maxCheckInDays) * 62)}px`, background: PALETTE.teal, borderRadius: '999px 999px 2px 2px' }} />
-                        ))}
+                      <div style={{ position: 'relative', height: '76px', paddingBottom: '11px' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: '62px', borderBottom: '1px solid #cdece8' }}>
+                          {weeklyComparison.map(week => (
+                            <div key={getDateKey(week.weekStart)} data-tooltip={`${week.label}：${week.checkInDays} 天`} className={styles.weekBarHit}>
+                              <div style={{ width: '10px', height: `${Math.max(5, (week.checkInDays / maxCheckInDays) * 56)}px`, background: PALETTE.teal, borderRadius: '999px 999px 2px 2px' }} />
+                              <span style={{ position: 'absolute', bottom: '-5px', width: '1px', height: '5px', background: '#cdece8' }} />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
