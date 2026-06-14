@@ -36,6 +36,17 @@ async function assertCanManagePrize(prizeId: string, userId: string, role: strin
   return prize
 }
 
+async function assertCanManagePrizeDraw(drawId: string, userId: string, role: string) {
+  const draw = await prisma.prizeDraw.findUnique({
+    where: { id: drawId },
+    include: { child: true },
+  })
+
+  if (!draw) return null
+  if (role !== 'admin' && draw.child.parentUserId !== userId) return null
+  return draw
+}
+
 function normalizePrize(formData: FormData) {
   const title = ((formData.get('title') as string) || '').trim()
   const tier = ((formData.get('tier') as string) || '').trim()
@@ -120,7 +131,7 @@ export async function approveCheckmarkAction(checkmarkId: string) {
       childId: checkmark.childId,
       actorUserId: session.user.id,
       eventType: 'checkmark_approved',
-      message: 'A parent approved today activity.',
+      message: '家长确认了今日打卡。',
       metadata: { checkmarkId, approvedDrawCount: approvedDraws.count },
     })
   })
@@ -166,7 +177,7 @@ export async function approveTodayAboveAction(childId: string) {
       childId,
       actorUserId: session.user.id,
       eventType: 'checkmarks_approved_batch',
-      message: `Approved ${approved.count} checkmarks.`,
+      message: `已通过 ${approved.count} 项打卡。`,
       metadata: { approvedCount: approved.count, approvedDrawCount: approvedDraws.count },
     })
   })
@@ -215,7 +226,7 @@ export async function undoTodayAboveAction(childId: string) {
       childId,
       actorUserId: session.user.id,
       eventType: 'checkmarks_returned_batch',
-      message: `Returned ${marks.length} checkmarks.`,
+      message: `已退回 ${marks.length} 项打卡。`,
       metadata: { returnedCount: marks.length },
     })
   })
@@ -304,6 +315,24 @@ export async function deletePrizeAction(prizeId: string) {
   await prisma.prize.update({
     where: { id: prizeId },
     data: { status: 'deleted' },
+  })
+
+  revalidatePath('/parent')
+  revalidatePath('/child/treasure')
+}
+
+export async function redeemPrizeDrawAction(drawId: string) {
+  const session = await getSession()
+  if (!session || (session.user.role !== 'parent' && session.user.role !== 'admin')) {
+    return
+  }
+
+  const draw = await assertCanManagePrizeDraw(drawId, session.user.id, session.user.role)
+  if (!draw || draw.status !== 'approved') return
+
+  await prisma.prizeDraw.update({
+    where: { id: draw.id },
+    data: { status: 'redeemed' },
   })
 
   revalidatePath('/parent')

@@ -13,7 +13,7 @@ export default async function ParentLayout({
 
   return (
     <div style={{ backgroundColor: '#fff', minHeight: '100vh' }}>
-      <div className="container">
+      <div style={{ width: '100%', maxWidth: '640px', margin: '0 auto', padding: '24px 20px' }}>
         {children}
       </div>
     </div>

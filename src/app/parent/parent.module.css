@@ -3,25 +3,301 @@
   width: 16px;
   height: 16px;
   margin: 0;
-  border: 2px solid #d1d5db;
+  border: 2px solid var(--border-color);
   border-radius: 5px;
-  background: #fff;
+  background: var(--surface-color);
 }
 
 .checkboxInput:checked {
-  border-color: #377ec0;
-  background: #e2f0ff;
+  border-color: var(--gem-blue);
+  background: var(--gem-blue-light);
 }
 
 .checkboxIcon {
   position: absolute;
   top: 2px;
   left: 2px;
-  color: #377ec0;
+  color: var(--gem-blue);
   opacity: 0;
   pointer-events: none;
 }
 
 .checkboxInput:checked + .checkboxIcon {
   opacity: 1;
+}
+
+.estimatePanel {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 10px 0;
+  background: var(--surface-color);
+}
+
+.estimateCard {
+  padding: 0;
+  border-radius: 8px;
+  background: var(--surface-color);
+}
+
+.estimateHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.reportTitle,
+.estimateDate {
+  color: var(--text-main);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.reportTitle {
+  margin: 0;
+}
+
+.estimateDate {
+  margin-left: auto;
+  color: var(--gem-blue);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.segmentProgressTrack {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  height: 8px;
+  margin: 18px 4px 0;
+  overflow: visible;
+  border-radius: 999px;
+  background: #edf1f4;
+}
+
+.segmentProgressPart {
+  position: relative;
+  overflow: visible;
+  background: #edf1f4;
+  border-right: 2px solid var(--surface-color);
+}
+
+.segmentProgressPart:first-child {
+  border-radius: 999px 0 0 999px;
+}
+
+.segmentProgressPart:last-child {
+  border-right: 0;
+  border-radius: 0 999px 999px 0;
+}
+
+.segmentProgressFill {
+  height: 100%;
+  background: var(--gem-blue);
+}
+
+.segmentProgressPart:first-child .segmentProgressFill {
+  border-radius: 999px 0 0 999px;
+}
+
+.segmentProgressPart:last-child .segmentProgressFill {
+  border-radius: 0 999px 999px 0;
+}
+
+.pinMarker {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--surface-color);
+  border-radius: 999px;
+  background: var(--gem-pink);
+}
+
+.pinMarker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--gem-pink);
+}
+
+.reportCard {
+  overflow-x: auto;
+  border: 1px solid #edf1f4;
+  border-radius: 8px;
+  background: var(--surface-color);
+}
+
+.reportTable {
+  width: 100%;
+  min-width: 544px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  color: var(--text-main);
+  font-size: 13px;
+}
+
+.reportTable col:nth-child(1) { width: 104px; }
+.reportTable col:nth-child(2) { width: 88px; }
+.reportTable col:nth-child(3) { width: 88px; }
+.reportTable col:nth-child(4) { width: 88px; }
+.reportTable col:nth-child(5) { width: 88px; }
+.reportTable col:nth-child(6) { width: 88px; }
+
+.reportTable th {
+  height: 46px;
+  padding: 0 10px;
+  background: #f8fbfd;
+  border-bottom: 1px solid #edf1f4;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.reportTable th:first-child {
+  text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.reportTable th:nth-child(2) { background: #eef6ff; }
+.reportTable th:nth-child(3) { background: #fffbe8; }
+.reportTable th:nth-child(4) { background: #eafbf8; }
+.reportTable th:nth-child(5) { background: #fff2e4; }
+.reportTable th:nth-child(6) { background: #f7fbfd; }
+
+.headContent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.headDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--text-muted);
+}
+
+.dotBlue { background: var(--gem-blue); }
+.dotYellow { background: var(--gem-yellow); }
+.dotTeal { background: var(--gem-green); }
+.dotOrange { background: var(--gem-orange); }
+.dotRed { background: var(--gem-pink); }
+
+.reportTable td {
+  height: 56px;
+  padding: 10px;
+  border-bottom: 1px solid #edf1f4;
+  text-align: center;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.reportTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.reportTable tbody tr:hover td {
+  background: #f9fcff;
+}
+
+.dateCell {
+  text-align: center !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  border-right: 1px solid #edf1f4;
+  background: #fbfdff;
+}
+
+.weekendSat {
+  background: #fff6e8 !important;
+}
+
+.weekendSun {
+  background: #fff0f1 !important;
+}
+
+.weekdayLabel {
+  color: var(--gem-blue);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.weekendSat .weekdayLabel {
+  color: var(--gem-orange);
+}
+
+.weekendSun .weekdayLabel {
+  color: var(--gem-pink);
+}
+
+.dateLabel {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.metricCell {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.metricBlue { color: var(--gem-blue); }
+.metricYellow { color: #9a6a00; }
+.metricTeal { color: var(--gem-green); }
+.metricOrange { color: var(--gem-orange); }
+.metricEmpty { color: #a8a29e; }
+
+.alcumusCell {
+  text-align: center !important;
+}
+
+.pillGroup {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.alcumusPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.pillBlue {
+  border: 1px solid var(--gem-blue);
+  background: #eef6ff;
+  color: var(--gem-blue);
+}
+
+.pillTeal {
+  border: 1px solid var(--gem-green);
+  background: #eafbf8;
+  color: var(--gem-green);
 }

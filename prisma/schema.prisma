@@ -119,7 +119,7 @@ model PrizeDraw {
   prizeId         String?
   prizeTitle      String?
   tier            String   // "special", "first", "second", "third"
-  status          String   @default("pending") // "pending", "approved", "revoked"
+  status          String   @default("pending") // "pending", "approved", "redeemed", "revoked"
   pointsSpent     Int      @default(100)
   createdAt       DateTime @default(now())
   approvedAt      DateTime?
