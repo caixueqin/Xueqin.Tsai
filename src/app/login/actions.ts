@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { loginUser } from '@/lib/auth'
 import { hashPin, verifyPin } from '@/lib/pin'
 import { redirect } from 'next/navigation'
+import { Prisma } from '@prisma/client'
 
 export async function loginAction(formData: FormData) {
   const name = ((formData.get('name') as string) || '').trim()
@@ -14,7 +15,7 @@ export async function loginAction(formData: FormData) {
   }
 
   // Find user
-  let user = await prisma.user.findFirst({
+  let user = await prisma.user.findUnique({
     where: { name }
   })
 
@@ -59,22 +60,27 @@ export async function loginAction(formData: FormData) {
       }
 
       if (newName && newName !== user.name) {
-        const existing = await prisma.user.findFirst({
-          where: { name: newName, id: { not: user.id } }
-        })
+        const existing = await prisma.user.findUnique({ where: { name: newName } })
         if (existing) {
           return { error: 'That login name is already taken.' }
         }
       }
 
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          name: newName || user.name,
-          password: hashPin(newPin),
-          mustChangePin: false,
+      try {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            name: newName || user.name,
+            password: hashPin(newPin),
+            mustChangePin: false,
+          }
+        })
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+          return { error: 'That login name is already taken.' }
         }
-      })
+        throw error
+      }
     }
   }
 

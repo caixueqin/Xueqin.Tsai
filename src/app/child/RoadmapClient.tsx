@@ -3,23 +3,17 @@
 import { useTransition, useState, useRef, useEffect, useMemo } from 'react'
 import type { CSSProperties } from 'react'
 import { enterNextMineAction } from './actions'
+import MiningDrawFlow, { type MiningDrawResult } from './MiningDrawFlow'
 import styles from './child.module.css'
 import Link from 'next/link'
 import { Flag, Star, CheckCircle2, PenTool, BookOpen, Lock, ChevronDown, Trophy, RefreshCw } from 'lucide-react'
 
-const SECTION_COLORS = ['#12baaa', '#377ec0', '#f7891f', '#f03f52']
+const SECTION_COLORS = ['#12baaa', '#377ec0', '#f7891f', '#f04f52']
 const SMART_COMPARE_OPTIONS = [
   { value: 'me', label: 'Me', title: 'My method wins' },
   { value: 'aops_smarter', label: 'AoPS', title: 'AoPS method wins' },
   { value: 'tie', label: 'Tie', title: 'Both methods are equally good' },
 ]
-const PRIZE_TIER_LABELS: Record<string, string> = {
-  special: 'Special Prize',
-  first: 'First Prize',
-  second: 'Second Prize',
-  third: 'Third Prize',
-}
-
 function getPointValue(itemType: string) {
   if (itemType === 'alcumus_blue') return 110
   if (itemType === 'alcumus_green') return 60
@@ -55,22 +49,24 @@ export default function RoadmapClient({
   chapter, 
   allMarks,
   hasMarkedToday,
-  initialPoints
+  initialPoints,
+  unlockedChapterIds,
 }: { 
   child: any, 
   chapter: any, 
   allMarks: any[],
   hasMarkedToday: boolean,
   initialPoints: number
+  unlockedChapterIds: string[]
 }) {
   const [isPending, startTransition] = useTransition()
   const [marks, setMarks] = useState<LocalMark[]>(allMarks)
   const [points, setPoints] = useState(initialPoints)
   const [syncStates, setSyncStates] = useState<Record<string, SyncState>>({})
   const [alcumusSliderValues, setAlcumusSliderValues] = useState<Record<string, number>>({})
-  const [recentDraws, setRecentDraws] = useState<any[]>([])
-  const [drawRevealed, setDrawRevealed] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
+  const [drawRequestKey, setDrawRequestKey] = useState(0)
+  const [syncError, setSyncError] = useState('')
   const defaultExpanded = useRef<Record<string, boolean> | null>(null)
   const prevActiveIndex = useRef<number | null>(null)
 
@@ -84,6 +80,7 @@ export default function RoadmapClient({
 
   const syncCheckmark = async (operation: PendingOperation) => {
     setSyncStates(prev => ({ ...prev, [operation.itemId]: 'syncing' }))
+    setSyncError('')
 
     try {
       const response = await fetch('/api/checkmarks', {
@@ -114,13 +111,14 @@ export default function RoadmapClient({
         setMarks(prev => prev.filter(mark => mark.checkItemId !== operation.itemId))
       }
 
-      if (Array.isArray(result.draws) && result.draws.length > 0) {
-        setPoints(prev => prev - result.draws.length * 100)
-        setDrawRevealed(false)
-        setRecentDraws(result.draws)
-      }
       if (Array.isArray(result.revokedDraws) && result.revokedDraws.length > 0) {
         setPoints(prev => prev + result.revokedDraws.length * 100)
+      }
+      if (typeof result.pointBalance === 'number') {
+        setPoints(result.pointBalance)
+      }
+      if (operation.action === 'create' && result.availableDraws > 0) {
+        setDrawRequestKey(prev => prev + 1)
       }
 
       setSyncStates(prev => {
@@ -132,7 +130,9 @@ export default function RoadmapClient({
         }
         return next
       })
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Sync failed'
+      setSyncError(message)
       if (operation.action === 'create') {
         setPoints(prev => prev - (operation.pointDelta || 0))
         setMarks(prev => [
@@ -224,6 +224,16 @@ export default function RoadmapClient({
     })
   }
 
+  const handleMiningClaimed = (result: MiningDrawResult) => {
+    setPoints(result.pointBalance)
+  }
+
+  const handleMiningClosed = (result: MiningDrawResult) => {
+    if (result.availableDraws > 0) {
+      setDrawRequestKey(prev => prev + 1)
+    }
+  }
+
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -233,6 +243,7 @@ export default function RoadmapClient({
 
   const sectionData = useMemo(() => chapter.sections.map((section: any, idx: number) => {
     const checkItems = section.checkItems || []
+    const isChapterUnlocked = unlockedChapterIds.includes(chapter.id)
     
     const alcumusGreen = checkItems.find((i: any) => i.itemType === 'alcumus_green')
     const alcumusBlue = checkItems.find((i: any) => i.itemType === 'alcumus_blue')
@@ -240,7 +251,7 @@ export default function RoadmapClient({
     const hasGreen = alcumusGreen ? marks.some(m => m.checkItemId === alcumusGreen.id) : false
     const hasBlue = alcumusBlue ? marks.some(m => m.checkItemId === alcumusBlue.id) : false
 
-    let isUnlocked = true
+    let isUnlocked = isChapterUnlocked
     if (idx > 0) {
       const prevSection = chapter.sections[idx - 1]
       const prevAlcumusGreen = prevSection.checkItems.find((i: any) => i.itemType === 'alcumus_green')
@@ -276,7 +287,7 @@ export default function RoadmapClient({
       hasBlue,
       groups
     }
-  }), [chapter.sections, marks])
+  }), [chapter.id, chapter.sections, marks, unlockedChapterIds])
 
   // Find the first locked section to apply pulse animation
   const firstLockedIndex = sectionData.findIndex((s: any) => !s.isUnlocked)
@@ -302,12 +313,6 @@ export default function RoadmapClient({
     }
     prevActiveIndex.current = activeSectionIndex
   }, [activeSectionIndex, sectionData])
-
-  useEffect(() => {
-    if (recentDraws.length === 0) return
-    const timer = window.setTimeout(() => setDrawRevealed(true), 3000)
-    return () => window.clearTimeout(timer)
-  }, [recentDraws])
 
   const hasClearedFinalGate = sectionData.some((s: any) => s.sectionType === 'final_gate' && marks.some((m: any) => s.checkItems.some((i: any) => i.id === m.checkItemId)))
   const visiblePoints = Math.max(0, points)
@@ -338,6 +343,37 @@ export default function RoadmapClient({
           </div>
         </div>
       </div>
+
+      <MiningDrawFlow
+        requestKey={drawRequestKey}
+        onClaimed={handleMiningClaimed}
+        onClosed={handleMiningClosed}
+      />
+
+      {syncError && (
+        <div
+          role="alert"
+          style={{
+            position: 'fixed',
+            left: '50%',
+            bottom: '24px',
+            transform: 'translateX(-50%)',
+            width: 'min(520px, calc(100vw - 32px))',
+            zIndex: 1000,
+            padding: '14px 16px',
+            borderRadius: '20px',
+            background: '#fff4d7',
+            border: '3px solid rgba(247,137,31,0.38)',
+            color: 'var(--text-main)',
+            fontSize: '14px',
+            fontWeight: 800,
+            lineHeight: 1.35,
+            boxShadow: '0 16px 36px rgba(47,47,56,0.22)',
+          }}
+        >
+          提交没有成功：{syncError}
+        </div>
+      )}
 
       <h1 style={{ fontFamily: 'var(--font-coiny)', fontSize: '24px', fontWeight: 400, color: 'var(--text-main)', margin: '0 0 24px', letterSpacing: '-1px' }}>
         {chapter.number}. {chapter.titleEn}
@@ -713,38 +749,6 @@ export default function RoadmapClient({
         </button>
       )}
 
-      {recentDraws.length > 0 && (
-        <div className={styles.drawModalBackdrop}>
-          <div className={styles.drawModal}>
-            {!drawRevealed ? (
-              <>
-                <h2>Mining...</h2>
-                <div className={styles.drawRevealAnimation}>
-                  <div className={styles.drawPickaxe}>⛏</div>
-                  <div className={styles.drawChest}>?</div>
-                </div>
-                <p className={styles.drawRevealHint}>Something is inside...</p>
-              </>
-            ) : (
-              <>
-                <h2>Treasure Found!</h2>
-                {recentDraws.map(draw => (
-                  <div key={draw.id} className={styles.drawModalPrize}>
-                    <span>{PRIZE_TIER_LABELS[draw.tier] || draw.tier}</span>
-                    <strong>{draw.prize?.title || draw.prizeTitle || 'Mystery Prize'}</strong>
-                  </div>
-                ))}
-                <button type="button" onClick={() => {
-                  setRecentDraws([])
-                  setDrawRevealed(false)
-                }}>
-                  Nice
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </>
   )
 }

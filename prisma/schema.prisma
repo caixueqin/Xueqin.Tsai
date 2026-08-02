@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider   = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -11,93 +11,100 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(cuid())
-  name       String
-  pin        String?  // For children
-  password   String?  // For parents/admin
-  role       String   // "admin", "child", "parent"
-  mustChangePin Boolean @default(false)
-  createdAt  DateTime @default(now())
+  id            String   @id @default(cuid())
+  name          String   @unique
+  pin           String? // For children
+  password      String? // For parents/admin
+  role          String // "admin", "child", "parent"
+  mustChangePin Boolean  @default(false)
+  createdAt     DateTime @default(now())
 
-  child      Child?
-  parentForChildren Child[] @relation("ParentForChild")
-  checkmarks Checkmark[] @relation("CreatedBy")
-  undoneMarks Checkmark[] @relation("UndoneBy")
+  child              Child?
+  parentForChildren  Child[]                 @relation("ParentForChild")
+  checkmarks         Checkmark[]             @relation("CreatedBy")
+  undoneMarks        Checkmark[]             @relation("UndoneBy")
+  mineralCollection  UserMineralCollection[]
+  mineralDrawRecords MineralDrawRecord[]
 }
 
 model Child {
-  id                 String   @id @default(cuid())
-  userId             String   @unique
-  user               User     @relation(fields: [userId], references: [id])
-  parentUserId       String?  @unique
-  parentUser         User?    @relation("ParentForChild", fields: [parentUserId], references: [id])
-  displayName        String
-  avatarTheme        String?  @unique
-  currentSectionId   String?
-  createdAt          DateTime @default(now())
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id])
+  parentUserId     String?  @unique
+  parentUser       User?    @relation("ParentForChild", fields: [parentUserId], references: [id])
+  displayName      String
+  avatarTheme      String?  @unique
+  currentSectionId String?
+  specialPrizeRate Int      @default(1)
+  firstPrizeRate   Int      @default(9)
+  secondPrizeRate  Int      @default(30)
+  thirdPrizeRate   Int      @default(60)
+  createdAt        DateTime @default(now())
 
-  checkmarks         Checkmark[]
-  prizes             Prize[]
-  prizeDraws         PrizeDraw[]
-  pointLedger        PointLedger[]
-  activityLogs       ActivityLog[]
+  checkmarks   Checkmark[]
+  prizes       Prize[]
+  prizeDraws   PrizeDraw[]
+  pointLedger  PointLedger[]
+  activityLogs ActivityLog[]
 }
 
 model Chapter {
-  id          String   @id @default(cuid())
-  number      Int
-  titleEn     String
-  titleZh     String?
-  orderIndex  Int
+  id         String  @id @default(cuid())
+  number     Int
+  titleEn    String
+  titleZh    String?
+  orderIndex Int
 
-  sections    Section[]
+  sections Section[]
 }
 
 model Section {
-  id           String   @id @default(cuid())
-  chapterId    String
-  chapter      Chapter  @relation(fields: [chapterId], references: [id])
-  number       String
-  titleEn      String
-  titleZh      String?
-  sectionType  String   // "intro", "regular", "final_gate"
-  orderIndex   Int
+  id          String  @id @default(cuid())
+  chapterId   String
+  chapter     Chapter @relation(fields: [chapterId], references: [id])
+  number      String
+  titleEn     String
+  titleZh     String?
+  sectionType String // "intro", "regular", "final_gate"
+  orderIndex  Int
 
-  checkItems   CheckItem[]
+  checkItems CheckItem[]
 }
 
 model CheckItem {
-  id           String   @id @default(cuid())
+  id           String  @id @default(cuid())
   sectionId    String
-  section      Section  @relation(fields: [sectionId], references: [id])
-  itemGroup    String?  // e.g., "Problem 1.1", "Alcumus", "End of Chapter"
-  itemType     String   // "try", "aops_way", "alcumus_green", "alcumus_blue", "review_read", "review_q", "challenge"
+  section      Section @relation(fields: [sectionId], references: [id])
+  itemGroup    String? // e.g., "Problem 1.1", "Alcumus", "End of Chapter"
+  itemType     String // "try", "aops_way", "alcumus_green", "alcumus_blue", "review_read", "review_q", "challenge"
   labelEn      String
   labelZh      String?
-  isRepeatable Boolean  @default(false)
+  isRepeatable Boolean @default(false)
   orderIndex   Int
 
-  checkmarks   Checkmark[]
+  checkmarks Checkmark[]
 }
 
 model Checkmark {
-  id               String   @id @default(cuid())
-  childId          String
-  child            Child    @relation(fields: [childId], references: [id])
-  checkItemId      String
-  checkItem        CheckItem @relation(fields: [checkItemId], references: [id])
-  
-  status           String   @default("active") // "active", "undone", "needs_fix"
-  parentReviewStatus String @default("unreviewed") // "unreviewed", "ok", "needs_fix"
-  parentNote       String?
+  id          String    @id @default(cuid())
+  childId     String
+  child       Child     @relation(fields: [childId], references: [id])
+  checkItemId String
+  checkItem   CheckItem @relation(fields: [checkItemId], references: [id])
 
-  createdByUserId  String
-  createdByUser    User     @relation("CreatedBy", fields: [createdByUserId], references: [id])
-  checkedAt        DateTime @default(now())
+  status             String  @default("active") // "active", "undone", "needs_fix"
+  parentReviewStatus String  @default("unreviewed") // "unreviewed", "ok", "needs_fix"
+  parentNote         String?
+  awardKey           String? @unique
 
-  undoneByUserId   String?
-  undoneByUser     User?    @relation("UndoneBy", fields: [undoneByUserId], references: [id])
-  undoneAt         DateTime?
+  createdByUserId String
+  createdByUser   User     @relation("CreatedBy", fields: [createdByUserId], references: [id])
+  checkedAt       DateTime @default(now())
+
+  undoneByUserId String?
+  undoneByUser   User?     @relation("UndoneBy", fields: [undoneByUserId], references: [id])
+  undoneAt       DateTime?
 }
 
 model Prize {
@@ -105,7 +112,7 @@ model Prize {
   childId      String
   child        Child    @relation(fields: [childId], references: [id])
   title        String
-  tier         String   // "special", "first", "second", "third"
+  tier         String // "special", "first", "second", "third"
   isRepeatable Boolean  @default(false)
   status       String   @default("active") // "active", "inactive", "deleted"
   createdAt    DateTime @default(now())
@@ -113,18 +120,18 @@ model Prize {
 }
 
 model PrizeDraw {
-  id              String   @id @default(cuid())
-  childId         String
-  child           Child    @relation(fields: [childId], references: [id])
-  prizeId         String?
-  prizeTitle      String?
-  tier            String   // "special", "first", "second", "third"
-  status          String   @default("pending") // "pending", "approved", "redeemed", "revoked"
-  pointsSpent     Int      @default(100)
-  createdAt       DateTime @default(now())
-  approvedAt      DateTime?
-  revokedAt       DateTime?
-  revokedReason   String?
+  id            String    @id @default(cuid())
+  childId       String
+  child         Child     @relation(fields: [childId], references: [id])
+  prizeId       String?
+  prizeTitle    String?
+  tier          String // "special", "first", "second", "third"
+  status        String    @default("pending") // "pending", "approved", "redeemed", "revoked"
+  pointsSpent   Int       @default(100)
+  createdAt     DateTime  @default(now())
+  approvedAt    DateTime?
+  revokedAt     DateTime?
+  revokedReason String?
 }
 
 model PointLedger {
@@ -132,7 +139,7 @@ model PointLedger {
   childId     String
   child       Child    @relation(fields: [childId], references: [id])
   points      Int
-  type        String   // "checkmark_award", "checkmark_reversal", "draw_spend", "draw_refund"
+  type        String // "checkmark_award", "checkmark_reversal", "draw_spend", "draw_refund"
   checkmarkId String?
   drawId      String?
   note        String?
@@ -149,4 +156,39 @@ model ActivityLog {
   message     String
   metadata    String?
   createdAt   DateTime @default(now())
+}
+
+model UserMineralCollection {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  cardId          String
+  ownedCount      Int      @default(1)
+  firstObtainedAt DateTime @default(now())
+  lastObtainedAt  DateTime @default(now())
+
+  @@unique([userId, cardId])
+  @@index([userId])
+}
+
+model MineralDrawRecord {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  prizeDrawId String?   @unique
+  cardId      String
+  prizeTier   String
+  isNew       Boolean
+  createdAt   DateTime  @default(now())
+  revokedAt   DateTime?
+
+  @@index([userId, createdAt])
+}
+
+model MiningChoiceClaim {
+  nonce     String   @id
+  childId   String
+  claimedAt DateTime @default(now())
+
+  @@index([childId, claimedAt])
 }

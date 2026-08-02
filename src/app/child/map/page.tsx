@@ -2,6 +2,7 @@ import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import MapClient from './MapClient'
+import { getUnlockedChapterIds } from '@/lib/progression'
 
 export default async function MapPage() {
   const session = await getSession()
@@ -15,6 +16,7 @@ export default async function MapPage() {
   const chapters = await prisma.chapter.findMany({
     orderBy: { orderIndex: 'asc' }
   })
+  const unlockedChapterIds = Array.from(await getUnlockedChapterIds(prisma, child.id))
 
   let currentChapterId: string | null = null
   if (child.currentSectionId) {
@@ -26,5 +28,11 @@ export default async function MapPage() {
     }
   }
 
-  return <MapClient chapters={chapters} currentChapterId={currentChapterId} />
+  return (
+    <MapClient
+      chapters={chapters}
+      currentChapterId={currentChapterId}
+      unlockedChapterIds={unlockedChapterIds}
+    />
+  )
 }

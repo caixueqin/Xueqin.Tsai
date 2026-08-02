@@ -26,14 +26,18 @@ export default async function ChildLayout({
           status: 'active',
           checkedAt: { gte: today }
         }
-      },
-      prizeDraws: {
-        where: {
-          createdAt: { gte: today }
-        }
       }
     }
   })
+  const todayMineralDraws = await prisma.mineralDrawRecord.findMany({
+    where: {
+      createdAt: { gte: today },
+      revokedAt: null,
+    },
+    select: { userId: true },
+  })
+  const usersWithTreasureToday = new Set(todayMineralDraws.map(draw => draw.userId))
+
   return (
     <div className={styles.layout}>
       <header className={styles.header}>
@@ -45,7 +49,7 @@ export default async function ChildLayout({
             displayName: child.displayName,
             avatarTheme: child.avatarTheme,
             todayCount: child.checkmarks.length,
-            foundTreasureToday: child.prizeDraws.length > 0,
+            foundTreasureToday: usersWithTreasureToday.has(child.userId),
           }))}
         />
       </header>

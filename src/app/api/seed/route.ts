@@ -18,34 +18,15 @@ function parseProblemRange(text: string): { start: number, end: number, prefix: 
   return null
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const isProduction = process.env.NODE_ENV === 'production'
 
     if (isProduction) {
-      const [userCount, childCount, chapterCount, sectionCount, checkItemCount, checkmarkCount] = await Promise.all([
-        prisma.user.count(),
-        prisma.child.count(),
-        prisma.chapter.count(),
-        prisma.section.count(),
-        prisma.checkItem.count(),
-        prisma.checkmark.count(),
-      ])
-
-      const hasExistingData =
-        userCount > 0 ||
-        childCount > 0 ||
-        chapterCount > 0 ||
-        sectionCount > 0 ||
-        checkItemCount > 0 ||
-        checkmarkCount > 0
-
-      if (hasExistingData) {
-        return NextResponse.json(
-          { error: 'Seed route is disabled because production data already exists.' },
-          { status: 409 }
-        )
-      }
+      return NextResponse.json(
+        { error: 'Seed route is disabled in production.' },
+        { status: 403 }
+      )
     } else {
       console.log('Clearing database...')
       await prisma.checkmark.deleteMany()
@@ -58,10 +39,10 @@ export async function GET(request: Request) {
 
     // 1. Create Users
     await prisma.user.create({
-      data: { name: 'Admin', role: 'admin', password: 'admin' }
+      data: { name: 'Admin', role: 'admin', password: hashPin('admin') }
     })
     await prisma.user.create({
-      data: { name: 'Parent', role: 'parent', password: 'parent' }
+      data: { name: 'Parent', role: 'parent', password: hashPin('parent') }
     })
 
     const childrenNames = ['Yao', 'Sean', 'Shirley', 'Jeff']

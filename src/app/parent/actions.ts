@@ -7,6 +7,12 @@ import { logActivity, reverseCheckmarkPoints, revokeDrawsIfNeeded } from '@/lib/
 
 const PRIZE_TIERS = new Set(['special', 'first', 'second', 'third'])
 const PRIZE_STATUSES = new Set(['active', 'inactive'])
+const PRIZE_RATE_FIELDS = [
+  'specialPrizeRate',
+  'firstPrizeRate',
+  'secondPrizeRate',
+  'thirdPrizeRate',
+] as const
 
 function getTodayStart() {
   const today = new Date()
@@ -54,6 +60,48 @@ function normalizePrize(formData: FormData) {
 
   if (!title || !PRIZE_TIERS.has(tier)) return null
   return { title, tier, isRepeatable }
+}
+
+function normalizePrizeRates(formData: FormData) {
+  const entries = PRIZE_RATE_FIELDS.map(field => {
+    const value = Number(formData.get(field))
+    return [field, value] as const
+  })
+
+  if (entries.some(([, value]) => !Number.isInteger(value) || value < 0 || value > 100)) {
+    return null
+  }
+
+  const rates = Object.fromEntries(entries) as Record<(typeof PRIZE_RATE_FIELDS)[number], number>
+  const total = Object.values(rates).reduce((sum, value) => sum + value, 0)
+  return total === 100 ? rates : null
+}
+
+export async function updatePrizeRatesAction(childId: string, formData: FormData) {
+  const session = await getSession()
+  if (!session || (session.user.role !== 'parent' && session.user.role !== 'admin')) {
+    return { error: '无权修改中奖率。' }
+  }
+
+  const child = await assertCanManageChild(childId, session.user.id, session.user.role)
+  const rates = normalizePrizeRates(formData)
+
+  if (!child) return { error: '找不到对应的孩子。' }
+  if (!rates) return { error: '四个奖级必须是 0–100 的整数，并且合计为 100%。' }
+
+  await prisma.$executeRaw`
+    UPDATE "Child"
+    SET
+      "specialPrizeRate" = ${rates.specialPrizeRate},
+      "firstPrizeRate" = ${rates.firstPrizeRate},
+      "secondPrizeRate" = ${rates.secondPrizeRate},
+      "thirdPrizeRate" = ${rates.thirdPrizeRate}
+    WHERE "id" = ${child.id}
+  `
+
+  revalidatePath('/parent')
+  revalidatePath('/child')
+  return { success: true }
 }
 
 export async function undoCheckmarkAction(checkmarkId: string) {

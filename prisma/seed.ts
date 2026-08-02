@@ -25,6 +25,10 @@ function parseProblemRange(text: string): { start: number, end: number, prefix: 
 }
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Refusing to run the destructive demo seed in production.')
+  }
+
   console.log('Clearing database...')
   await prisma.checkmark.deleteMany()
   await prisma.checkItem.deleteMany()
@@ -35,10 +39,10 @@ async function main() {
 
   // 1. Create Users
   const admin = await prisma.user.create({
-    data: { name: 'Admin', role: 'admin', password: 'admin' }
+    data: { name: 'Admin', role: 'admin', password: hashPin('admin') }
   })
   const parent = await prisma.user.create({
-    data: { name: 'Parent', role: 'parent', password: 'parent' }
+    data: { name: 'Parent', role: 'parent', password: hashPin('parent') }
   })
 
   const childrenNames = ['Yao', 'Sean', 'Shirley', 'Jeff']

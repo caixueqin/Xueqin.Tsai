@@ -14,6 +14,10 @@ CREATE TABLE "Child" (
     "userId" TEXT NOT NULL,
     "displayName" TEXT NOT NULL,
     "currentSectionId" TEXT,
+    "specialPrizeRate" INTEGER NOT NULL DEFAULT 1,
+    "firstPrizeRate" INTEGER NOT NULL DEFAULT 9,
+    "secondPrizeRate" INTEGER NOT NULL DEFAULT 30,
+    "thirdPrizeRate" INTEGER NOT NULL DEFAULT 60,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Child_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -72,4 +76,3 @@ CREATE TABLE "Checkmark" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Child_userId_key" ON "Child"("userId");
-

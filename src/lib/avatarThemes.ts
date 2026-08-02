@@ -1,6 +1,6 @@
 export const AVATAR_THEMES = [
   { key: 'blue', color: '#377ec0', label: 'Blue' },
-  { key: 'red', color: '#f03f52', label: 'Red' },
+  { key: 'red', color: '#f04f52', label: 'Red' },
   { key: 'yellow', color: '#fbdf54', label: 'Yellow' },
   { key: 'aqua', color: '#12baaa', label: 'Aqua' },
   { key: 'orange', color: '#f7891f', label: 'Orange' },
@@ -21,5 +21,5 @@ export const AVATAR_EXPRESSIONS = [
 
 export function getAvatarSrc(theme: string | null | undefined, expressionCode: string) {
   if (!theme || !AVATAR_THEME_KEYS.includes(theme as AvatarThemeKey)) return null
-  return `/image/${theme}${expressionCode}.png`
+  return `/image/user-icons/${theme}${expressionCode}.png`
 }

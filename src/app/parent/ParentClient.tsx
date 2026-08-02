@@ -13,6 +13,7 @@ import {
   setPrizeStatusAction,
   undoTodayAboveAction,
   undoCheckmarkAction,
+  updatePrizeRatesAction,
   updatePrizeAction,
 } from './actions'
 
@@ -332,6 +333,85 @@ function PrizeFields({ prize }: { prize?: Prize }) {
 )
 }
 
+const PRIZE_RATE_OPTIONS = [
+  { field: 'specialPrizeRate', label: '特等奖', color: '#d97706' },
+  { field: 'firstPrizeRate', label: '一等奖', color: '#377ec0' },
+  { field: 'secondPrizeRate', label: '二等奖', color: '#12baaa' },
+  { field: 'thirdPrizeRate', label: '三等奖', color: '#7c6f64' },
+] as const
+
+function PrizeOddsForm({ child }: { child: Child }) {
+  const [rates, setRates] = useState(() => ({
+    specialPrizeRate: child.specialPrizeRate ?? 1,
+    firstPrizeRate: child.firstPrizeRate ?? 9,
+    secondPrizeRate: child.secondPrizeRate ?? 30,
+    thirdPrizeRate: child.thirdPrizeRate ?? 60,
+  }))
+  const [isSaving, setIsSaving] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const total = Object.values(rates).reduce((sum, rate) => sum + rate, 0)
+
+  return (
+    <form
+      className={styles.prizeOddsPanel}
+      action={async formData => {
+        setIsSaving(true)
+        setMessage(null)
+        const result = await updatePrizeRatesAction(child.id, formData)
+        setMessage(result?.error || '中奖率已保存。')
+        setIsSaving(false)
+      }}
+    >
+      <div className={styles.prizeOddsHeader}>
+        <div>
+          <h3>中奖率设置</h3>
+          <p>每次抽奖按以下比例决定奖级；四项合计必须为 100%。</p>
+        </div>
+        <span className={total === 100 ? styles.prizeOddsTotalValid : styles.prizeOddsTotalInvalid}>
+          合计 {total}%
+        </span>
+      </div>
+
+      <div className={styles.prizeOddsGrid}>
+        {PRIZE_RATE_OPTIONS.map(option => (
+          <label key={option.field} className={styles.prizeOddsField}>
+            <span>
+              <i style={{ background: option.color }} />
+              {option.label}
+            </span>
+            <span className={styles.prizeOddsInputWrap}>
+              <input
+                type="number"
+                name={option.field}
+                min="0"
+                max="100"
+                step="1"
+                value={rates[option.field]}
+                onChange={event => {
+                  const value = event.target.value === '' ? 0 : Number(event.target.value)
+                  setRates(current => ({ ...current, [option.field]: value }))
+                  setMessage(null)
+                }}
+                aria-label={`${option.label}中奖率`}
+              />
+              <b>%</b>
+            </span>
+          </label>
+        ))}
+      </div>
+
+      <div className={styles.prizeOddsFooter}>
+        <span className={message?.includes('已保存') ? styles.prizeOddsSuccess : styles.prizeOddsError}>
+          {message || (total !== 100 ? `还需调整 ${Math.abs(100 - total)}%` : '默认：1% / 9% / 30% / 60%')}
+        </span>
+        <button type="submit" disabled={total !== 100 || isSaving}>
+          {isSaving ? '保存中…' : '保存中奖率'}
+        </button>
+      </div>
+    </form>
+  )
+}
+
 export default function ParentClient({ childrenList, recentMarks, prizes, activityLogs, reportMarks, prizeDraws, completionEstimate, problemTexts }: ParentClientProps) {
   const [isPending, startTransition] = useTransition()
   const [editingPrizeId, setEditingPrizeId] = useState<string | null>(null)
@@ -570,6 +650,8 @@ export default function ParentClient({ childrenList, recentMarks, prizes, activi
 
             {activeTab === '奖品池' && (
               <div>
+                <PrizeOddsForm child={child} />
+
                 {childPrizes.length === 0 && (
                   <p style={{ color: '#9c9284', fontSize: '13px', margin: '0 0 14px' }}>还没有奖品。</p>
                 )}

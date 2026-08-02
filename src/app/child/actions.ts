@@ -4,12 +4,13 @@ import { prisma } from '@/lib/prisma'
 import { getSession } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { AVATAR_THEME_KEYS } from '@/lib/avatarThemes'
+import { AVATAR_THEME_KEYS, type AvatarThemeKey } from '@/lib/avatarThemes'
+import { getUnlockedChapterIds } from '@/lib/progression'
 
 export async function chooseAvatarThemeAction(theme: string) {
   const session = await getSession()
   if (!session || session.user.role !== 'child') return { error: 'Unauthorized' }
-  if (!AVATAR_THEME_KEYS.includes(theme as any)) return { error: 'Invalid theme' }
+  if (!AVATAR_THEME_KEYS.includes(theme as AvatarThemeKey)) return { error: 'Invalid theme' }
 
   const child = await prisma.child.findUnique({ where: { userId: session.user.id } })
   if (!child) return { error: 'Unauthorized' }
@@ -34,49 +35,6 @@ export async function chooseAvatarThemeAction(theme: string) {
   return { success: true, theme: updated.avatarTheme }
 }
 
-export async function toggleCheckmarkAction(childId: string, checkItemId: string, currentlyChecked: boolean) {
-  const session = await getSession()
-  if (!session || session.user.role !== 'child') return { error: 'Unauthorized' }
-  
-  // Verify it's their own childId
-  const child = await prisma.child.findUnique({ where: { userId: session.user.id } })
-  if (!child || child.id !== childId) return { error: 'Unauthorized' }
-
-  if (currentlyChecked) {
-    // If it was checked today, we mark it undone
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
-    const existing = await prisma.checkmark.findFirst({
-      where: {
-        childId,
-        checkItemId,
-        status: 'active',
-        checkedAt: { gte: today }
-      }
-    })
-    
-    if (existing) {
-      await prisma.checkmark.update({
-        where: { id: existing.id },
-        data: { status: 'undone', undoneAt: new Date(), undoneByUserId: session.user.id }
-      })
-    }
-  } else {
-    // Add checkmark
-    await prisma.checkmark.create({
-      data: {
-        childId,
-        checkItemId,
-        createdByUserId: session.user.id,
-      }
-    })
-  }
-
-  revalidatePath('/child')
-  return { success: true }
-}
-
 export async function enterNextMineAction(currentChapterId: string) {
   const session = await getSession()
   if (!session || session.user.role !== 'child') return { error: 'Unauthorized' }
@@ -84,16 +42,28 @@ export async function enterNextMineAction(currentChapterId: string) {
   const child = await prisma.child.findUnique({ where: { userId: session.user.id } })
   if (!child) return { error: 'Unauthorized' }
 
-  // Find the next chapter based on orderIndex
-  const currentChapter = await prisma.chapter.findUnique({ where: { id: currentChapterId } })
-  if (!currentChapter) return { error: 'Chapter not found' }
+  const currentSection = child.currentSectionId
+    ? await prisma.section.findUnique({
+        where: { id: child.currentSectionId },
+        select: { chapterId: true },
+      })
+    : null
+  if (!currentSection || currentSection.chapterId !== currentChapterId) {
+    return { error: 'This is not the current mine.' }
+  }
 
-  const nextChapter = await prisma.chapter.findFirst({
-    where: { orderIndex: { gt: currentChapter.orderIndex } },
-    orderBy: { orderIndex: 'asc' }
+  const chapters = await prisma.chapter.findMany({
+    orderBy: { orderIndex: 'asc' },
+    select: { id: true },
   })
+  const currentIndex = chapters.findIndex(chapter => chapter.id === currentChapterId)
+  const nextChapter = currentIndex >= 0 ? chapters[currentIndex + 1] : null
 
   if (!nextChapter) return { error: 'No more chapters' }
+  const unlockedChapterIds = await getUnlockedChapterIds(prisma, child.id)
+  if (!unlockedChapterIds.has(nextChapter.id)) {
+    return { error: 'Finish the final gate before entering the next mine.' }
+  }
 
   // Find the first section of the next chapter
   const nextSection = await prisma.section.findFirst({

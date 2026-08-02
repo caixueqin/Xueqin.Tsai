@@ -32,7 +32,7 @@ export async function POST() {
 
     const existingParent = child.parentUserId
       ? await prisma.user.findUnique({ where: { id: child.parentUserId } })
-      : await prisma.user.findFirst({ where: { name: account.parentName } })
+      : await prisma.user.findUnique({ where: { name: account.parentName } })
 
     const parent = existingParent
       ? await prisma.user.update({

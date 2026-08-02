@@ -20,10 +20,33 @@ export default async function ParentPage() {
   const session = await getSession()
   if (!session || (session.user.role !== 'parent' && session.user.role !== 'admin')) redirect('/login')
 
-  const children = await prisma.child.findMany({
+  const childrenBase = await prisma.child.findMany({
     where: session.user.role === 'admin' ? undefined : { parentUserId: session.user.id },
     orderBy: { displayName: 'asc' }
   })
+  const prizeOdds = await prisma.$queryRaw<Array<{
+    id: string
+    specialPrizeRate: number
+    firstPrizeRate: number
+    secondPrizeRate: number
+    thirdPrizeRate: number
+  }>>`
+    SELECT
+      "id",
+      "specialPrizeRate",
+      "firstPrizeRate",
+      "secondPrizeRate",
+      "thirdPrizeRate"
+    FROM "Child"
+  `
+  const prizeOddsByChildId = new Map(prizeOdds.map(odds => [odds.id, odds]))
+  const children = childrenBase.map(child => ({
+    ...child,
+    specialPrizeRate: prizeOddsByChildId.get(child.id)?.specialPrizeRate ?? 1,
+    firstPrizeRate: prizeOddsByChildId.get(child.id)?.firstPrizeRate ?? 9,
+    secondPrizeRate: prizeOddsByChildId.get(child.id)?.secondPrizeRate ?? 30,
+    thirdPrizeRate: prizeOddsByChildId.get(child.id)?.thirdPrizeRate ?? 60,
+  }))
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)

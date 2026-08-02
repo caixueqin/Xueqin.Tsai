@@ -1,0 +1,152 @@
+---
+title: MathCraft Minerals Card Database
+version: 2026-06-19-final-64
+palette:
+  gemstone: "#F04F52"
+  metal: "#377EC0"
+  industry: "#F7891F"
+  geology: "#12BAAA"
+  joker: "#FBDF54"
+id_rule:
+  - GEM-01 to GEM-15: 宝石类 / Gemstone Suit
+  - MET-01 to MET-15: 金属类 / Metal Suit
+  - IND-01 to IND-15: 能源与工业类 / Energy & Industry Suit
+  - GEO-01 to GEO-15: 地质类 / Geology Suit
+  - JOKER-01 to JOKER-04: 特等奖 / Joker Cards
+rarity_rule:
+  - N 常见: value 45-54
+  - R 稀有: value 55-64
+  - SR 超稀有: value 65-74
+  - SSR 史诗: value 75-89
+  - UR 传说: value 90-100
+prize_rule:
+  - 三等奖: 36 张，约占普通抽卡 60%
+  - 二等奖: 18 张，约占普通抽卡 30%
+  - 一等奖: 6 张，约占普通抽卡 10%
+  - 特等奖: 4 张 Joker，极低概率独立抽取
+  - 具体奖项以各卡牌表格中的“奖等级”为准，不再直接按价值区间划分
+notes:
+  - 元素标签是儿童图鉴用的简化标签，不是完整化学式。
+  - “安全封存”表示只作为图鉴卡牌知识出现，不作为实物采集或实验对象。
+---
+
+# minerals.md
+
+这是 MathCraft 矿物卡牌系统的最终 64 张图鉴版本：  
+四个基础花色各 15 张，共 60 张；Joker / 特等奖 4 张。
+
+## 花色总览
+
+| 花色 | 英文 | 主题色 | 数量 | 定位 |
+|---|---|---:|---:|---|
+| 宝石类 | Gemstone | `#F04F52` | 15 | 饰品、颜色、收藏、宝石感 |
+| 金属类 | Metal | `#377EC0` | 15 | 可冶炼金属、重量感、矿脉感 |
+| 能源与工业类 | Energy & Industry | `#F7891F` | 15 | 材料、能源、化工、民生用途 |
+| 地质类 | Geology | `#12BAAA` | 15 | 造岩矿物、地层、地质观察 |
+| 特等奖 | Joker | `#FBDF54` | 4 | 超稀有隐藏卡，不参与普通花色集齐 |
+
+## 奖项分布
+
+| 奖项 | 数量 | 约对应概率 | 定位 |
+|---|---:|---:|---|
+| 特等奖 / Joker | 4 | 极低概率 | 隐藏大奖 |
+| 一等奖 | 6 | 约 10% | 高价值稀有卡 |
+| 二等奖 | 18 | 约 30% | 中高价值卡 |
+| 三等奖 | 36 | 约 60% | 常见基础卡 |
+
+
+## 1. 宝石类 / Gemstone Suit
+
+| ID | 中文名 | English | 花色 | 奖等级 | 稀有度 | 价值 | 元素标签 | Fun fact | 安全 | 拼音 | English IPA |
+|---|---|---|---|---|---|---:|---|---|--- |---|---|
+| GEM-01 | 钻石 | Diamond | 宝石类 | 一等奖 | SSR 史诗 | 88 | `C` | 最经典的宝石之一，也常被用在切割、研磨等高硬度工具中。 | — | zuàn shí | /ˈdaɪəmənd/ |
+| GEM-02 | 红宝石 | Ruby | 宝石类 | 一等奖 | SSR 史诗 | 86 | `Al, O, Cr` | 红宝石和蓝宝石其实同属刚玉家族，红色主要来自铬元素。 | — | hóng bǎo shí | /ˈruːbi/ |
+| GEM-03 | 蓝宝石 | Sapphire | 宝石类 | 一等奖 | SSR 史诗 | 86 | `Al, O, Fe, Ti` | 蓝宝石的蓝色常与铁、钛等微量元素有关。 | — | lán bǎo shí | /ˈsæfaɪr/ |
+| GEM-04 | 祖母绿 | Emerald | 宝石类 | 一等奖 | SSR 史诗 | 85 | `Be, Al, Si, O, Cr/V` | 祖母绿属于绿柱石家族，内部包裹体常被称为“花园”。 | — | zǔ mǔ lǜ | /ˈemərəld/ |
+| GEM-05 | 硬玉 | Jadeite | 宝石类 | 一等奖 | SSR 史诗 | 84 | `Na, Al, Si, O` | 硬玉是翡翠的主要矿物，颜色和透明度差异很大。 | — | yìng yù | /ˈdʒeɪdaɪt/ |
+| GEM-06 | 电气石 | Tourmaline | 宝石类 | 二等奖 | SSR 史诗 | 78 | `B, Al, Si, Na, Mg/Fe/Li` | 电气石颜色变化非常丰富，可以在一根晶体中出现多种颜色。 | — | diàn qì shí | /ˈtʊrməlɪn/ |
+| GEM-07 | 拉长石 | Labradorite | 宝石类 | 二等奖 | SR 超稀有 | 66 | `Ca, Na, Al, Si, O` | 拉长石常有蓝绿闪光，这种现象叫拉长石晕彩。 | — | lā cháng shí | /ˌlæbrəˈdɔːraɪt/ |
+| GEM-08 | 尖晶石 | Spinel | 宝石类 | 二等奖 | SSR 史诗 | 76 | `Mg, Al, O` | 尖晶石常被误认为红宝石，历史上不少著名“红宝石”其实是尖晶石。 | — | jiān jīng shí | /spɪˈnel/ |
+| GEM-09 | 海蓝宝 | Aquamarine | 宝石类 | 二等奖 | SSR 史诗 | 75 | `Be, Al, Si, O, Fe` | 海蓝宝属于绿柱石家族，名字来自海水般的蓝绿色。 | — | hǎi lán bǎo | /ˌækwəməˈriːn/ |
+| GEM-10 | 黄玉 | Topaz | 宝石类 | 二等奖 | SR 超稀有 | 72 | `Al, Si, O, F, OH` | 黄玉英文 Topaz，颜色不只有黄色，也有蓝色、无色、粉色等。 | — | huáng yù | /ˈtoʊpæz/ |
+| GEM-11 | 橄榄石宝石 | Peridot | 宝石类 | 二等奖 | SR 超稀有 | 68 | `Mg, Fe, Si, O` | Peridot 是宝石级橄榄石，常呈明亮的黄绿色。 | — | gǎn lǎn shí bǎo shí | /ˈperɪdɒt/ |
+| GEM-12 | 绿松石 | Turquoise | 宝石类 | 二等奖 | R 稀有 | 64 | `Cu, Al, P, O, H` | 绿松石的蓝绿色来自铜，是很古老的装饰宝石。 | — | lǜ sōng shí | /ˈtɜːrkwɔɪz/ |
+| GEM-13 | 孔雀石 | Malachite | 宝石类 | 二等奖 | R 稀有 | 62 | `Cu, C, O, H` | 孔雀石有像孔雀羽毛一样的绿色同心纹。 | — | kǒng què shí | /ˈmæləkaɪt/ |
+| GEM-14 | 石榴石 | Garnet | 宝石类 | 二等奖 | SR 超稀有 | 70 | `Al, Fe/Mg/Ca, Si, O` | 石榴石不是单一矿物，而是一组颜色丰富的矿物家族。 | — | shí liu shí | /ˈɡɑːrnɪt/ |
+| GEM-15 | 紫水晶 | Amethyst | 宝石类 | 二等奖 | SR 超稀有 | 65 | `Si, O, Fe` | 紫水晶是紫色石英，颜色与铁和天然辐照有关。 | — | zǐ shuǐ jīng | /ˈæməθɪst/ |
+
+## 2. 金属类 / Metal Suit
+
+| ID | 中文名 | English | 花色 | 奖等级 | 稀有度 | 价值 | 元素标签 | Fun fact | 安全 | 拼音 | English IPA |
+|---|---|---|---|---|---|---:|---|---|--- |---|---|
+| MET-01 | 赤铁矿 | Hematite | 金属类 | 三等奖 | R 稀有 | 55 | `Fe, O` | 赤铁矿是重要铁矿石，粉末常呈红褐色。 | — | chì tiě kuàng | /ˈhiːmətaɪt/ |
+| MET-02 | 磁铁矿 | Magnetite | 金属类 | 三等奖 | R 稀有 | 58 | `Fe, O` | 磁铁矿有天然磁性，是最容易被磁铁吸引的矿物之一。 | — | cí tiě kuàng | /ˈmæɡnətaɪt/ |
+| MET-03 | 黄铜矿 | Chalcopyrite | 金属类 | 三等奖 | R 稀有 | 61 | `Cu, Fe, S` | 黄铜矿是重要铜矿，颜色像黄铜但硬度较低。 | — | huáng tóng kuàng | /ˌkælkoʊˈpaɪraɪt/ |
+| MET-04 | 斑铜矿 | Bornite | 金属类 | 三等奖 | R 稀有 | 62 | `Cu, Fe, S` | 斑铜矿表面会出现蓝紫彩色氧化膜，因此也叫孔雀矿。 | — | bān tóng kuàng | /ˈbɔːrnaɪt/ |
+| MET-05 | 铝土矿 | Bauxite | 金属类 | 三等奖 | N 常见 | 52 | `Al, O, H` | 铝土矿是提炼铝的主要矿石。 | — | lǚ tǔ kuàng | /ˈbɔːksaɪt/ |
+| MET-06 | 方铅矿 | Galena | 金属类 | 二等奖 | SR 超稀有 | 65 | `Pb, S` | 方铅矿是重要铅矿，晶体常呈立方体。 | 安全封存 | fāng qiān kuàng | /ɡəˈliːnə/ |
+| MET-07 | 闪锌矿 | Sphalerite | 金属类 | 三等奖 | R 稀有 | 60 | `Zn, S` | 闪锌矿是最重要的锌矿石之一，颜色变化很大。 | — | shǎn xīn kuàng | /ˈsfæləraɪt/ |
+| MET-08 | 锡石 | Cassiterite | 金属类 | 三等奖 | SR 超稀有 | 68 | `Sn, O` | 锡石是提炼锡的主要矿物，锡常用于焊料和镀锡。 | — | xī shí | /kəˈsɪtəraɪt/ |
+| MET-09 | 铬铁矿 | Chromite | 金属类 | 三等奖 | SR 超稀有 | 66 | `Fe, Cr, O` | 铬铁矿是铬的重要来源，铬可用于不锈钢。 | — | gè tiě kuàng | /ˈkroʊmaɪt/ |
+| MET-10 | 软锰矿 | Pyrolusite | 金属类 | 三等奖 | R 稀有 | 59 | `Mn, O` | 软锰矿是重要锰矿，锰常用于钢铁和电池材料。 | — | ruǎn měng kuàng | /ˌpaɪrəˈluːsaɪt/ |
+| MET-11 | 镍黄铁矿 | Pentlandite | 金属类 | 三等奖 | SR 超稀有 | 70 | `Fe, Ni, S` | 镍黄铁矿是重要镍矿，镍常用于合金和电池。 | — | niè huáng tiě kuàng | /ˈpentləndaɪt/ |
+| MET-12 | 辉钼矿 | Molybdenite | 金属类 | 三等奖 | SR 超稀有 | 72 | `Mo, S` | 辉钼矿手感滑腻，外观像石墨，但含有钼。 | — | huī mù kuàng | /məˈlɪbdənaɪt/ |
+| MET-13 | 金矿 | Gold Ore | 金属类 | 一等奖 | SSR 史诗 | 82 | `Au, Si, O` | 金常以自然金或微小颗粒存在于石英脉等岩石中。 | — | jīn kuàng | /ɡoʊld ɔːr/ |
+| MET-14 | 银矿 | Silver Ore | 金属类 | 二等奖 | SSR 史诗 | 78 | `Ag, S/Si/O` | 银既是贵金属，也常用于导电材料和摄影等领域。 | — | yín kuàng | /ˈsɪlvər ɔːr/ |
+| MET-15 | 钴矿 | Cobaltite | 金属类 | 二等奖 | SR 超稀有 | 74 | `Co, As, S` | 钴矿是钴的重要来源，钴常用于电池和高性能合金。 | 安全封存 | gǔ kuàng | /ˈkoʊbɔːltaɪt/ |
+
+## 3. 能源与工业类 / Energy & Industry Suit
+
+| ID | 中文名 | English | 花色 | 奖等级 | 稀有度 | 价值 | 元素标签 | Fun fact | 安全 | 拼音 | English IPA |
+|---|---|---|---|---|---|---:|---|---|--- |---|---|
+| IND-01 | 石墨 | Graphite | 能源与工业类 | 三等奖 | R 稀有 | 64 | `C` | 石墨和钻石都主要由碳组成，但结构不同，性质完全不同。 | — | shí mò | /ˈɡræfaɪt/ |
+| IND-02 | 硫磺 | Sulfur | 能源与工业类 | 三等奖 | N 常见 | 50 | `S` | 硫磺颜色鲜黄，是化工和农业中重要的基础原料。 | — | liú huáng | /ˈsʌlfər/ |
+| IND-03 | 石膏 | Gypsum | 能源与工业类 | 三等奖 | N 常见 | 48 | `Ca, S, O, H` | 石膏可用于建筑材料、模型和粉笔类材料。 | — | shí gāo | /ˈdʒɪpsəm/ |
+| IND-04 | 岩盐 | Halite | 能源与工业类 | 三等奖 | N 常见 | 45 | `Na, Cl` | 岩盐就是天然形成的盐矿，主要成分是氯化钠。 | — | yán yán | /ˈhælaɪt/ |
+| IND-05 | 萤石 | Fluorite | 能源与工业类 | 二等奖 | SR 超稀有 | 66 | `Ca, F` | 萤石常见紫、绿、蓝等颜色，晶体常呈立方体。 | — | yíng shí | /ˈflʊəraɪt/ |
+| IND-06 | 重晶石 | Barite | 能源与工业类 | 三等奖 | N 常见 | 52 | `Ba, S, O` | 重晶石密度较高，常用于钻井泥浆等工业用途。 | — | zhòng jīng shí | /ˈberaɪt/ |
+| IND-07 | 磷灰石 | Apatite | 能源与工业类 | 三等奖 | R 稀有 | 58 | `Ca, P, O, F/Cl/OH` | 磷灰石是磷的重要来源，也和牙齿、骨骼中的磷酸钙有关。 | — | lín huī shí | /ˈæpətaɪt/ |
+| IND-08 | 锂辉石 | Spodumene | 能源与工业类 | 二等奖 | SR 超稀有 | 72 | `Li, Al, Si, O` | 锂辉石是重要锂矿物，锂常用于电池。 | — | lǐ huī shí | /ˈspɒdʒʊmiːn/ |
+| IND-09 | 锂云母 | Lepidolite | 能源与工业类 | 二等奖 | SR 超稀有 | 68 | `K, Li, Al, Si, O, F` | 锂云母是含锂云母，常呈淡紫色片状。 | — | lǐ yún mǔ | /lɪˈpɪdəlaɪt/ |
+| IND-10 | 独居石 | Monazite | 能源与工业类 | 三等奖 | SSR 史诗 | 78 | `Ce, La, Nd, Th, P, O` | 独居石含稀土元素，是稀土资源的重要来源之一。 | 安全封存 | dú jū shí | /ˈmɒnəzaɪt/ |
+| IND-11 | 氟碳铈矿 | Bastnäsite | 能源与工业类 | 二等奖 | SSR 史诗 | 76 | `Ce, La, F, C, O` | 氟碳铈矿是重要稀土矿物，常与现代科技材料有关。 | — | fú tàn shì kuàng | /ˈbæstnəsaɪt/ |
+| IND-12 | 钾盐 | Sylvite | 能源与工业类 | 三等奖 | N 常见 | 46 | `K, Cl` | 钾盐是钾肥的重要来源，和农业生产关系密切。 | — | jiǎ yán | /ˈsɪlvaɪt/ |
+| IND-13 | 硼砂 | Borax | 能源与工业类 | 三等奖 | N 常见 | 50 | `Na, B, O, H` | 硼砂含硼，硼常用于玻璃、清洁剂和材料工业。 | — | péng shā | /ˈbɔːræks/ |
+| IND-14 | 石棉 | Asbestos | 能源与工业类 | 三等奖 | R 稀有 | 55 | `Mg, Si, O, H` | 石棉纤维耐热但对健康有害，只适合作为图鉴知识认识。 | 安全封存 | shí mián | /æsˈbestəs/ |
+| IND-15 | 铀矿 | Uraninite | 能源与工业类 | 三等奖 | SSR 史诗 | 82 | `U, O` | 铀矿是重要核能矿物，具有放射性，只能作为知识卡认识。 | 安全封存 | yóu kuàng | /jʊəˈrænɪnaɪt/ |
+
+## 4. 地质类 / Geology Suit
+
+| ID | 中文名 | English | 花色 | 奖等级 | 稀有度 | 价值 | 元素标签 | Fun fact | 安全 | 拼音 | English IPA |
+|---|---|---|---|---|---|---:|---|---|--- |---|---|
+| GEO-01 | 石英 | Quartz | 地质类 | 三等奖 | N 常见 | 50 | `Si, O` | 石英是最常见的造岩矿物之一，在砂岩和花岗岩中很常见。 | — | shí yīng | /kwɔːrts/ |
+| GEO-02 | 正长石 | Orthoclase | 地质类 | 三等奖 | N 常见 | 52 | `K, Al, Si, O` | 正长石是钾长石的一种，是花岗岩中常见的矿物。 | — | zhèng cháng shí | /ˈɔːrθəkleɪs/ |
+| GEO-03 | 方解石 | Calcite | 地质类 | 三等奖 | N 常见 | 48 | `Ca, C, O` | 方解石遇稀酸会起泡，是识别碳酸盐矿物的经典线索。 | — | fāng jiě shí | /ˈkælsaɪt/ |
+| GEO-04 | 白云石 | Dolomite | 地质类 | 三等奖 | N 常见 | 49 | `Ca, Mg, C, O` | 白云石和方解石相似，但含有镁，常见于白云岩。 | — | bái yún shí | /ˈdoʊləmaɪt/ |
+| GEO-05 | 辉石 | Augite | 地质类 | 三等奖 | R 稀有 | 60 | `Ca, Mg, Fe, Si, O` | 辉石常见于玄武岩等深色火成岩中，颜色多为深绿到黑色。 | — | huī shí | /ˈɔːdʒaɪt/ |
+| GEO-06 | 角闪石 | Hornblende | 地质类 | 三等奖 | R 稀有 | 61 | `Ca, Na, Mg, Fe, Al, Si, O, H` | 角闪石常呈长柱状或针状，是重要的造岩矿物。 | — | jiǎo shǎn shí | /ˈhɔːrnblend/ |
+| GEO-07 | 白云母 | Muscovite | 地质类 | 三等奖 | R 稀有 | 56 | `K, Al, Si, O, H` | 白云母可以剥成薄片，常有珍珠光泽。 | — | bái yún mǔ | /ˈmʌskəvaɪt/ |
+| GEO-08 | 霰石 | Aragonite | 地质类 | 三等奖 | R 稀有 | 58 | `Ca, C, O` | 霰石和方解石成分相同，但晶体结构不同。 | — | xiàn shí | /əˈræɡənaɪt/ |
+| GEO-09 | 滑石 | Talc | 地质类 | 三等奖 | N 常见 | 45 | `Mg, Si, O, H` | 滑石是摩氏硬度 1 的代表矿物，手感滑腻。 | — | huá shí | /tælk/ |
+| GEO-10 | 高岭石 | Kaolinite | 地质类 | 三等奖 | N 常见 | 46 | `Al, Si, O, H` | 高岭石是重要黏土矿物，常用于陶瓷和瓷土。 | — | gāo lǐng shí | /ˈkeɪəlɪnaɪt/ |
+| GEO-11 | 蛇纹石 | Serpentine | 地质类 | 三等奖 | R 稀有 | 55 | `Mg, Si, O, H` | 蛇纹石常呈绿色蜡状，名字来自蛇皮般的纹理联想。 | — | shé wén shí | /ˈsɜːrpəntiːn/ |
+| GEO-12 | 绿帘石 | Epidote | 地质类 | 三等奖 | R 稀有 | 63 | `Ca, Al, Fe, Si, O, H` | 绿帘石常见于变质岩环境，颜色多为黄绿到深绿。 | — | lǜ lián shí | /ˈepɪdoʊt/ |
+| GEO-13 | 蓝晶石 | Kyanite | 地质类 | 二等奖 | SR 超稀有 | 72 | `Al, Si, O` | 蓝晶石常呈蓝色扁长板状晶体，是变质作用的重要线索。 | — | lán jīng shí | /ˈkaɪənaɪt/ |
+| GEO-14 | 十字石 | Staurolite | 地质类 | 三等奖 | SR 超稀有 | 70 | `Fe, Mg, Al, Si, O, H` | 十字石常形成十字状双晶，非常适合作为识别卡。 | — | shí zì shí | /ˈstɔːrəlaɪt/ |
+| GEO-15 | 绿泥石 | Chlorite | 地质类 | 三等奖 | N 常见 | 54 | `Mg, Fe, Al, Si, O, H` | 绿泥石常呈绿色片状，是低级变质岩中常见矿物。 | — | lǜ ní shí | /ˈklɔːraɪt/ |
+
+## 5. 特等奖 / Joker Cards
+
+| ID | 中文名 | English | 花色 | 奖等级 | 稀有度 | 价值 | 元素标签 | Fun fact | 安全 | 拼音 | English IPA |
+|---|---|---|---|---|---|---:|---|---|--- |---|---|
+| JOKER-01 | 帝王黄玉 | Imperial Topaz | 特等奖 | 特等奖 | UR 传说 | 96 | `Al, Si, O, F, OH, Fe/Cr` | 帝王黄玉以橙金、粉橙色调著称，是黄玉中非常珍贵的颜色。 | — | dì wáng huáng yù | /ɪmˈpɪəriəl ˈtoʊpæz/ |
+| JOKER-02 | 镁塔菲石 | Musgravite | 特等奖 | 特等奖 | UR 传说 | 98 | `Mg, Be, Al, O` | 镁塔菲石是极稀有宝石，常呈灰紫、紫褐等低调颜色。 | — | měi tǎ fēi shí | /ˈmʌzɡrəvaɪt/ |
+| JOKER-03 | 红绿柱石 | Red Beryl | 特等奖 | 特等奖 | UR 传说 | 97 | `Be, Al, Si, O, Mn` | 红绿柱石属于绿柱石家族，红色主要与锰有关，非常稀少。 | — | hóng lǜ zhù shí | /red ˈberəl/ |
+| JOKER-04 | 蓝锥矿 | Benitoite | 特等奖 | 特等奖 | UR 传说 | 95 | `Ba, Ti, Si, O` | 蓝锥矿以强烈蓝色著名，也是美国加州州宝石。 | — | lán zhuī kuàng | /bəˈniːtoʊaɪt/ |
+
+## 使用建议
+
+- 抽卡时可按 `奖等级` 控制概率，也可按 `花色` 做收集进度。
+- `价值` 可以用于排序、兑换碎片、重复卡转化、卡牌升级。
+- `安全封存` 卡牌不建议鼓励孩子寻找实物，只作为知识卡与风险认知卡出现。
+- Joker Cards 是特等奖 / 隐藏卡，不参与普通四花色 15 张集齐。

@@ -58,7 +58,7 @@ export default function AvatarThemePicker({
                 {AVATAR_EXPRESSIONS.map(expression => (
                   <img
                     key={expression.code}
-                    src={`/image/${theme.key}${expression.code}.png`}
+                    src={`/image/user-icons/${theme.key}${expression.code}.png`}
                     alt={`${theme.label} ${expression.label}`}
                   />
                 ))}

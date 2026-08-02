@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import RoadmapClient from './RoadmapClient'
 import AvatarThemePicker from './AvatarThemePicker'
+import { getUnlockedChapterIds } from '@/lib/progression'
 
 export default async function ChildPage() {
   const session = await getSession()
@@ -28,11 +29,40 @@ export default async function ChildPage() {
     return <div>No mine available. Please wait for Admin.</div>
   }
 
+  const unlockedChapterIds = await getUnlockedChapterIds(prisma, child.id)
+
   // Find the current chapter based on currentSectionId
-  const currentSection = await prisma.section.findUnique({
+  let currentSection = await prisma.section.findUnique({
     where: { id: sectionId },
     include: { chapter: true }
   })
+
+  if (!currentSection) return <div>Mine corrupted.</div>
+
+  if (!unlockedChapterIds.has(currentSection.chapterId)) {
+    const fallbackChapter = await prisma.chapter.findFirst({
+      where: { id: { in: Array.from(unlockedChapterIds) } },
+      orderBy: { orderIndex: 'desc' },
+      include: {
+        sections: {
+          orderBy: { orderIndex: 'asc' },
+          take: 1,
+        },
+      },
+    })
+    const fallbackSection = fallbackChapter?.sections[0]
+    if (fallbackSection) {
+      await prisma.child.update({
+        where: { id: child.id },
+        data: { currentSectionId: fallbackSection.id },
+      })
+      sectionId = fallbackSection.id
+      currentSection = await prisma.section.findUnique({
+        where: { id: sectionId },
+        include: { chapter: true },
+      })
+    }
+  }
 
   if (!currentSection) return <div>Mine corrupted.</div>
 
@@ -91,6 +121,7 @@ export default async function ChildPage() {
         allMarks={allMarks}
         hasMarkedToday={hasMarkedToday}
         initialPoints={pointBalance._sum.points || 0}
+        unlockedChapterIds={Array.from(unlockedChapterIds)}
       />
     </>
   )
