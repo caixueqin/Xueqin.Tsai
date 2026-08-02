@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && next build && node scripts/import-chapters-7-15.mjs",
     "start": "next start",
     "postinstall": "prisma generate",
     "lint": "eslint"

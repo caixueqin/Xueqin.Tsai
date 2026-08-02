@@ -149,6 +149,10 @@ async function main() {
     where: { number: { in: chapters.map((chapter) => chapter.number) } },
     select: { number: true },
   })
+  if (existing.length === chapters.length) {
+    console.log('Chapters 7-15 are already present; nothing to import.')
+    return
+  }
   if (existing.length) {
     throw new Error(`Refusing to create duplicate chapters. Already present: ${existing.map((chapter) => chapter.number).sort((a, b) => a - b).join(', ')}`)
   }
